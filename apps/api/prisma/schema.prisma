@@ -11,3 +11,49 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum TaskStatus {
+  PLANNED
+  IN_PROGRESS
+  REVIEWED
+  DONE
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime    @default(now())
+
+  ownedTasks   TaskOwner[]
+
+  @@map("user")
+}
+
+model Task {
+  id            String      @id @default(cuid())
+  title         String
+  description   String      @db.Text
+  status        TaskStatus  @default(PLANNED)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  executionTime Int?
+
+  owners        TaskOwner[]
+
+  @@index([status])
+  @@map("task")
+}
+
+model TaskOwner {
+  taskId String
+  userId String
+
+  task   Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+  @@index([userId])
+  @@map("task_owner")
+}
