@@ -55,3 +55,10 @@ Config lives in `prisma7.config.ts` (Prisma 7's config file, not `schema.prisma`
 - **Formatting**: `apps/api` uses Prettier (`.prettierrc`: single quotes, trailing commas everywhere). `apps/web` has no Prettier config.
 - **Testing**: `apps/api` uses Vitest with two separate configs/commands — unit specs (`vitest.config.ts`, pattern `**/*.spec.ts`, colocated with source) and e2e specs (`vitest.config.e2e.ts`, pattern `**/*.e2e-spec.ts`, under `apps/api/test/`). Both configs resolve TS path aliases via `vite-tsconfig-paths`. `apps/web` has no test setup yet.
 - **No observability/tracing configured yet.** The `nest new` scaffold's default `@nestjs/observe` module was removed (it required external cloud credentials, unnecessary for local learning). Revisit as a separate topic later if needed.
+
+## Working conventions
+
+- Commit messages: conventional commits (feat:, fix:, chore:, test:, docs:).
+- Before considering a backend task "done": tests must pass (`npm run test -w apps/api`), lint must pass (`npm run lint -w apps/api`).
+- Always show a plan before writing non-trivial code (multi-file changes, new modules, schema changes).
+- Explain key architectural decisions when generating new code, not just the code itself.
