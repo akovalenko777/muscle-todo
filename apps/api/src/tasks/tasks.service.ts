@@ -61,6 +61,12 @@ export class TasksService {
 
   async update(id: string, dto: UpdateTaskDto) {
     const { ownerIds, ...data } = dto;
+    if (ownerIds !== undefined) {
+      // createMany's P2003 below can't distinguish "task missing" from "ownerId
+      // missing" (no reliable meta on the FK violation) - confirm the task
+      // exists before touching TaskOwner rows at all.
+      await this.findOne(id);
+    }
     try {
       return await this.prisma.$transaction(async (tx) => {
         if (ownerIds !== undefined) {
