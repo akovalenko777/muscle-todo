@@ -27,6 +27,7 @@ model User {
   createdAt    DateTime    @default(now())
 
   ownedTasks   TaskOwner[]
+  token        RefreshToken?
 
   @@map("user")
 }
@@ -56,4 +57,17 @@ model TaskOwner {
   @@id([taskId, userId])
   @@index([userId])
   @@map("task_owner")
+}
+
+model RefreshToken {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+
+  refreshHash String    @unique
+  expiresAt   DateTime
+  revokedAt   DateTime?
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tokens")
 }
