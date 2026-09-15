@@ -5,7 +5,12 @@ import { JwtService, JwtSignOptions } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { createHash } from "node:crypto";
+import { JwtPayload } from "./jwt.strategy.js";
 
+interface IUser {
+  id: string
+  email: string
+}
 @Injectable()
 export class AuthService {
   constructor(
@@ -13,6 +18,26 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService
   ) {}
+
+  private generateTokens(user: IUser) {
+    const payload = { sub: user.id, username: user.email }
+    const expiresIn =  this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRES_IN') as JwtSignOptions['expiresIn']
+    const expiresAt = new Date(new Date().getTime() + ms(expiresIn as ms.StringValue))
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
+      expiresIn
+    })
+    const refreshHash = createHash('sha256').update(refreshToken).digest('hex')
+    return {
+      accessToken: this.jwtService.sign(payload, {
+        secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
+        expiresIn: this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRES_IN') as JwtSignOptions['expiresIn']
+      }),
+      refreshToken,
+      expiresAt,
+      refreshHash
+    }
+  }
 
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({
@@ -35,17 +60,7 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password)
-    const payload = { sub: user.id, username: user.email }
-
-    const expiresIn =  this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRES_IN') as JwtSignOptions['expiresIn']
-
-    const refresh_token = this.jwtService.sign(payload, {
-      secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-      expiresIn
-    })
-
-    const refreshHash = createHash('sha256').update(refresh_token).digest('hex')
-    const expiresAt = new Date(new Date().getTime() + ms(expiresIn as ms.StringValue))
+    const { refreshToken, accessToken, expiresAt, refreshHash } = this.generateTokens(user)
 
     await this.prisma.refreshToken.upsert({
       where: { userId: user.id },
@@ -61,15 +76,47 @@ export class AuthService {
     })
 
     return {
-      access_token: this.jwtService.sign(payload, {
-        secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
-        expiresIn: this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRES_IN') as JwtSignOptions['expiresIn']
-      }),
-      refresh_token
+      accessToken,
+      refreshToken
     }
   }
 
-  async refresh(){
-  
+  async refresh(refreshToken: string) {
+    let payload: JwtPayload
+    try {
+      payload = this.jwtService.verify<JwtPayload>(refreshToken, {
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET')
+      })
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token.')
+    }
+
+    const tokenInfo = await this.prisma.refreshToken.findUnique({
+      where: { userId: payload.sub }
+    })
+
+    const refreshHashCurrent = createHash('sha256').update(refreshToken).digest('hex')
+    if(refreshHashCurrent !== tokenInfo?.refreshHash) {
+      throw new UnauthorizedException('Invalid refresh token.')
+    }
+
+    if (!tokenInfo || tokenInfo?.revokedAt) {
+      throw new UnauthorizedException('Token is revoked.')
+    }
+
+    const { refreshToken: refreshTokenNew, accessToken, expiresAt, refreshHash } = this.generateTokens({id: payload.sub, email: payload.username})
+
+    await this.prisma.refreshToken.update({
+      where: { userId: payload.sub },
+      data: {
+        refreshHash,
+        expiresAt
+      }
+    })
+
+    return {
+      accessToken,
+      refreshToken: refreshTokenNew
+    }
   }
 }
