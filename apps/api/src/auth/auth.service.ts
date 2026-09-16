@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { createHash } from "node:crypto";
 import { JwtPayload } from "./jwt.strategy.js";
+import { randomUUID } from 'node:crypto';
 
 interface IUser {
   id: string
@@ -20,7 +21,7 @@ export class AuthService {
   ) {}
 
   private generateTokens(user: IUser) {
-    const payload = { sub: user.id, username: user.email }
+    const payload = { sub: user.id, username: user.email, jti: randomUUID() }
     const expiresIn =  this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRES_IN') as JwtSignOptions['expiresIn']
     const expiresAt = new Date(new Date().getTime() + ms(expiresIn as ms.StringValue))
     const refreshToken = this.jwtService.sign(payload, {

@@ -3,6 +3,7 @@ import { UsersService } from "./users.service.js";
 import { CreateUserDto } from "./dto/create-user.dto.js";
 import { UpdateUserDto } from "./dto/update-user.dto.js";
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Public } from "../auth/decorators/public.decorator.js";
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -21,6 +22,7 @@ export class UsersController {
   }
 
   @Post()
+  @Public()
   create(@Body() dto: CreateUserDto){
     return this.usersService.create(dto)
   }
