@@ -1,9 +1,10 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
 import { registerAndLogin } from './utils/auth-helper.js';
+import { createValidationPipe } from '../src/config/validation-pipe.js';
 
 describe('Tasks (e2e)', () => {
   let app: INestApplication;
@@ -16,7 +17,7 @@ describe('Tasks (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(createValidationPipe());
     await app.init();
 
     prisma = app.get(PrismaService);
@@ -55,5 +56,129 @@ describe('Tasks (e2e)', () => {
         })
         .expect(400)
     });
+
+    it('get tasks list without rows', async () => {
+      await request(app.getHttpServer())
+        .get('/tasks')
+        .query({ status: 'PLANNED' })
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body).toStrictEqual([])
+        })
+    })
+
+    it('get tasks list', async () => {
+      await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test task',
+          description: 'Test task description',
+        })
+        .expect(201)
+
+      await request(app.getHttpServer())
+        .get('/tasks')
+        .query({ status: 'PLANNED' })
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body).not.toStrictEqual([])
+        })
+    })
+
+    it('get one task', async () => {
+      const createTaskResponse = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test task',
+          description: 'Test task description',
+        })
+        .expect(201)
+
+      await request(app.getHttpServer())
+        .get(`/tasks/${createTaskResponse.body.id}`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.id).toBe(createTaskResponse.body.id)
+        })
+    })
+
+    it('get one task with invalid ID', async () => {
+      await request(app.getHttpServer())
+        .get(`/tasks/invalid_task_id`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(404)
+    })
+
+    it('update task status', async () => {
+      const createTaskResponse = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test task',
+          description: 'Test task description',
+        })
+        .expect(201)
+
+      await request(app.getHttpServer())
+        .patch(`/tasks/${createTaskResponse.body.id}`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test task UPD!',
+          status: 'IN_PROGRESS'
+        })
+        .expect(200)
+        .then((response) => {
+          expect(response.body.title).toBe('Test task UPD!')
+          expect(response.body.status).toBe('IN_PROGRESS')
+        })
+      
+      await request(app.getHttpServer())
+        .patch(`/tasks/${createTaskResponse.body.id}`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          status: 'INVALID_STATUS'
+        })
+        .expect(400)
+
+    })
+
+    it('returns 404 (not 400) when updating owners on a non-existent task', async () => {
+      await request(app.getHttpServer())
+        .patch(`/tasks/invalid_id`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          ownerIds: ['some-user-id']
+        })
+        .expect(404)
+    })
+
+    it('delete task', async () => {
+      const createTaskResponse = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test task',
+          description: 'Test task description',
+        })
+        .expect(201)
+
+      await request(app.getHttpServer())
+        .delete(`/tasks/${createTaskResponse.body.id}`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(204)
+    })
+
+    it('delete task with invalid ID', async () => {
+      await request(app.getHttpServer())
+        .delete(`/tasks/invalid_task_id`)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(404)
+    })
+
   })
 })
