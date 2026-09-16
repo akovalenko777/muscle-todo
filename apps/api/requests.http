@@ -1,0 +1,44 @@
+@baseUrl = http://localhost:3000
+
+### Register test user
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "name": "Test User",
+  "password": "Aa1"
+}
+
+### Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@test.com",
+  "password": "Aa1"
+}
+
+### Get all tasks (uses token from login above automatically)
+GET {{baseUrl}}/tasks
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### Create task
+# @name createTask
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Test task",
+  "description": "Created via REST Client"
+}
+
+### Refresh tokens
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{login.response.body.refreshToken}}"
+}
