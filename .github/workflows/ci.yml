@@ -13,6 +13,24 @@ jobs:
   api:
     name: API (lint, test, build)
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: kanban
+          POSTGRES_PASSWORD: kanban_dev_pass
+          POSTGRES_DB: kanban_test
+        ports:
+          - 5432:5432
+        options:  --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgresql://kanban:kanban_dev_pass@localhost:5432/kanban_test?schema=public
+      JWT_ACCESS_SECRET: ci-test-access-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: ci-test-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 7d
+
     steps:
       - uses: actions/checkout@v7
 
@@ -29,11 +47,18 @@ jobs:
         working-directory: apps/api
         run: npx prisma generate
 
+      - name: Deploy migrations
+        working-directory: apps/api
+        run: npx prisma migrate deploy
+
       - name: Lint
         run: npm run lint -w apps/api
 
       - name: Test
         run: npm run test -w apps/api
+
+      - name: Test E2E
+        run: npm run test:e2e -w apps/api
 
       - name: Build
         run: npm run build -w apps/api
