@@ -1,12 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTasksStore } from '../store/tasksStore';
 import api from '../api/axios';
 import type { Task, TaskStatus } from '../types/task';
 import { toast } from 'react-toastify';
 import type { AxiosResponse } from 'axios';
-import { Box } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import Column from '../components/Column';
-import { DndContext, type DragEndEvent } from '@dnd-kit/core';
+import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import TaskFormDialog from '../components/TaskFormDialog';
 
 const COLUMNS: { status: Task['status']; label: string }[] = [
   { status: 'PLANNED', label: 'Заплановано' },
@@ -16,7 +17,8 @@ const COLUMNS: { status: Task['status']; label: string }[] = [
 ];
 
 export default function BoardPage() {
-  const { tasks, setTasks, updateTaskStatus } = useTasksStore();
+  const [open, setOpen] = useState<boolean>(false)
+  const { tasks, taskForEdit, setTasks, updateTaskStatus, setTaskForEdit } = useTasksStore();
 
   const handleDragEnd = (event: DragEndEvent) => {
     if (!event.over) return
@@ -27,6 +29,16 @@ export default function BoardPage() {
     if (task && task.status !== newStatus) {
       updateTaskStatus(taskId, newStatus)
     }
+  }
+
+  const handleAddTask = () => {
+    setTaskForEdit(null)
+    setOpen(true)
+  }
+
+  const handleDialogClose = () => {
+    setOpen(false)
+    if (taskForEdit) setTaskForEdit(null)
   }
 
   useEffect(() => {
@@ -43,18 +55,43 @@ export default function BoardPage() {
     fetchTasks()
   }, []);
 
+  useEffect(() => {
+    if (taskForEdit) {
+      setOpen(true)
+    }
+  }, [taskForEdit])
+
+  const mouseSensor = useSensor(MouseSensor, {
+    activationConstraint: { distance: 5 }
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: { distance: 5 }
+  });
+  const keyboardSensor = useSensor(KeyboardSensor);
+
+  const sensors = useSensors(
+    mouseSensor,
+    touchSensor,
+    keyboardSensor,
+  );
+
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
-        {COLUMNS.map((column) => (
-          <Column
-            key={column.status}
-            status={column.status}
-            label={column.label}
-            tasks={tasks.filter((task) => task.status === column.status)}
-          />
-        ))}
-      </Box>
-    </DndContext>
+    <>
+      <Button variant="contained" onClick={handleAddTask}>Додати задачу</Button>
+      <TaskFormDialog open={open} onClose={handleDialogClose} task={taskForEdit} />
+      <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
+        <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
+          {COLUMNS.map((column) => (
+            <Column
+              key={column.status}
+              status={column.status}
+              label={column.label}
+              tasks={tasks.filter((task) => task.status === column.status)}
+            />
+          ))}
+        </Box>
+      </DndContext>
+    </>
+
   );
 }

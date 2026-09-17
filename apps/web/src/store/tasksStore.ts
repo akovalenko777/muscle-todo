@@ -5,13 +5,18 @@ import api from '../api/axios';
 interface TasksState {
   tasks: Task[];
   loading: boolean;
+  taskForEdit: Task | null;
   setTasks: (tasks: Task[]) => void;
   updateTaskStatus: (taskId: string, newStatus: TaskStatus) => Promise<void>;
+  addTask: (task: Task) => void;
+  updateTask: (task: Task) => void;
+  setTaskForEdit: (task: Task | null) => void;
 }
 
 export const useTasksStore = create<TasksState>((set, get) => ({
   tasks: [],
   loading: false,
+  taskForEdit: null,
   setTasks: (tasks) => set({ tasks }),
 
   updateTaskStatus: async (taskId, newStatus) => {
@@ -30,4 +35,17 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       set({ tasks: previousTasks })
     }
   },
+  addTask: (task) => {
+    set({ tasks: [...get().tasks, task] })
+  },
+  updateTask: (task) => {
+    const tasks = get().tasks
+    const updatedTasks = tasks.map((taskItem) =>
+      taskItem.id === task.id ? { ...task } : taskItem
+    )
+    set({ tasks: updatedTasks })
+  },
+  setTaskForEdit: (taskForEdit) => {
+    set({ taskForEdit })
+  }
 }));
