@@ -4,11 +4,13 @@ import { useAuthStore } from "../store/authStore"
 import type { AxiosResponse } from "axios"
 import { toast } from "react-toastify"
 import api from "../api/axios"
+import { useNavigate } from "react-router-dom"
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const login = useAuthStore((state) => state.login)
+  const navigate = useNavigate()
 
   const submitHandler = async (e: SyntheticEvent) => {
     e.preventDefault()
@@ -16,7 +18,7 @@ export default function LoginPage() {
       const response: AxiosResponse = await api.post('/auth/login', { email, password })
       if (response.status === 200) {
         login(response.data.accessToken, response.data.refreshToken, response.data.user)
-        //TODO: navigate to board page
+        navigate('/board')
       }
     } catch (_error: unknown) {
       toast.error('Email or password is incorrect')

@@ -4,6 +4,7 @@ import { CreateUserDto } from "./dto/create-user.dto.js";
 import { UpdateUserDto } from "./dto/update-user.dto.js";
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from "../auth/decorators/public.decorator.js";
+import { CurrentUser } from "../auth/decorators/current-user.decorator.js";
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -14,6 +15,11 @@ export class UsersController {
   @Get()
   findAll(){
     return this.usersService.findAll()
+  }
+
+  @Get('me')
+  getMe(@CurrentUser() user: { userId: string; email: string }){
+    return this.usersService.findOne(user.userId)
   }
 
   @Get(':id')
