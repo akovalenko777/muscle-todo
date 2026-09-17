@@ -43,7 +43,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true, passwordHash: true }
+      select: { id: true, email: true, name: true, passwordHash: true }
     })
     if(!user) {
       throw new UnauthorizedException()
@@ -78,7 +78,8 @@ export class AuthService {
 
     return {
       accessToken,
-      refreshToken
+      refreshToken,
+      user
     }
   }
 
