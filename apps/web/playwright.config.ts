@@ -16,22 +16,6 @@ export default defineConfig({
   testDir: './e2e',
   /* Run tests in files in parallel */
   fullyParallel: false,
-  webServer: [
-    {
-      command: 'npm run start:dev -w apps/api',
-      cwd: '../../',
-      url: 'http://localhost:3000',
-      reuseExistingServer: !process.env.CI,
-      env: {
-        DATABASE_URL: 'postgresql://kanban:kanban_dev_pass@localhost:5432/kanban_test?schema=public',
-      },
-    },
-    {
-      command: 'npm run dev',
-      url: 'http://localhost:5173',
-      reuseExistingServer: !process.env.CI,
-    },
-  ],
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   // forbidOnly: !!process.env.CI,
   /* Retry on CI only */
@@ -43,7 +27,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.WEB_BASE_URL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     // trace: 'on-first-retry',
@@ -88,9 +72,20 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  webServer: [
+    {
+      command: 'npm run start:dev -w apps/api',
+      cwd: '../../',
+      url: process.env.API_BASE_URL,
+      reuseExistingServer: !process.env.CI,
+      env: {
+        DATABASE_URL: process.env.TEST_DATABASE_URL as string,
+      },
+    },
+    {
+      command: 'npm run dev',
+      url: process.env.WEB_BASE_URL,
+      reuseExistingServer: !process.env.CI,
+    },
+  ],
 });

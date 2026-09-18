@@ -14,12 +14,11 @@ export const test = base.extend<{ testUser: TestUser }>({
       password: 'Aa1',
     };
 
-    console.log('Trying to create user:', user.email)
     const apiContext = await playwrightRequest.newContext();
-    const response = await apiContext.post('http://localhost:3000/users', { data: user });
+    const response = await apiContext.post(process.env.API_BASE_URL+'/users', { data: user });
     const body = await response.text();
     if (response.status() !== 201) {
-      throw new Error(`Failed to create test user: ${response.status()} - ${body}`);
+      throw new Error(`Failed to create test user: ${response.status()}`);
     }
     await apiContext.dispose();
 

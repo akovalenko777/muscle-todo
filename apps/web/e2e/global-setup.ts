@@ -1,9 +1,12 @@
 import { Client } from 'pg';
+import { config } from 'dotenv';
+import { resolve } from 'node:path';
+
+config({ path: resolve(import.meta.dirname, '.env.test') });
 
 export default async function globalSetup() {
-  console.log('>>> globalSetup: truncating test DB')
   const client = new Client({
-    connectionString: 'postgresql://kanban:kanban_dev_pass@localhost:5432/kanban_test?schema=public',
+    connectionString: process.env.TEST_DATABASE_URL,
   });
 
   await client.connect();
