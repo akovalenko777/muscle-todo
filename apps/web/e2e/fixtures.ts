@@ -1,5 +1,6 @@
 import { test as base, request as playwrightRequest } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { mockSpeechRecognition } from './mock-speech-recognition';
 interface TestUser {
   email: string;
   name: string;
@@ -13,7 +14,13 @@ interface TestTask {
 
 let token = ''
 
-export const test = base.extend<{ testUser: TestUser; authenticatedPage: Page; testTask: TestTask }>({
+export const test = base.extend<{
+  testUser: TestUser;
+  authenticatedPage: Page;
+  testTask: TestTask,
+  speechRecognitionText: string | null
+}>({
+  speechRecognitionText: [null, { option: true }],
   testUser: async ({}, use, testInfo) => {
     const user: TestUser = {
       email: `e2e-${testInfo.testId}-${new Date().getTime()}@test.com`,
@@ -31,7 +38,10 @@ export const test = base.extend<{ testUser: TestUser; authenticatedPage: Page; t
     await use(user);
   },
 
-  authenticatedPage: async ({ page, testUser, request }, use) => {
+  authenticatedPage: async ({ page, testUser, request, speechRecognitionText }, use) => {
+    if (speechRecognitionText !== null) {
+      await mockSpeechRecognition(page, speechRecognitionText);
+    }
     const loginResponse = await request.post(`${process.env.API_BASE_URL}/auth/login`, {
       data: { email: testUser.email, password: testUser.password },
     });
