@@ -5,6 +5,9 @@ import { useTasksStore } from '../store/tasksStore';
 import type { Task } from '../types/task';
 import { toast } from 'react-toastify';
 import type { AxiosResponse } from 'axios';
+import { useSpeechToText } from '../hooks/useSpeechToText';
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -15,8 +18,24 @@ interface TaskFormDialogProps {
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  
   const addTask = useTasksStore((state) => state.addTask);
   const updateTask = useTasksStore((state) => state.updateTask);
+  const { isListening, transcript, startListening, stopListening, isSupported, setTranscript } = useSpeechToText()
+  
+  const handleMicButton = () => {
+    if (!isListening) {
+      setTitle('')
+      setTranscript('')
+      startListening()
+    } else {
+      stopListening()
+    }
+  }
+
+  useEffect(() => {
+    setTitle(transcript)
+  }, [transcript])
 
   useEffect(() => {
     if (task) {
@@ -62,6 +81,11 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
           required
           onChange={(e) => setTitle(e.target.value)}
         />
+        {isSupported
+        ? <Button onClick={handleMicButton}>
+            {isListening ? <MicOffIcon /> : <MicIcon />}
+          </Button>
+        : null }
         <br />
         <TextField
           id="task-descr"
