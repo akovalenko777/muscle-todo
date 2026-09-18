@@ -1,13 +1,11 @@
 import { useState, useEffect, type SyntheticEvent } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import api from '../api/axios';
 import { useTasksStore } from '../store/tasksStore';
 import type { Task } from '../types/task';
 import { toast } from 'react-toastify';
 import type { AxiosResponse } from 'axios';
-import { useSpeechToText } from '../hooks/useSpeechToText';
-import MicIcon from '@mui/icons-material/Mic';
-import MicOffIcon from '@mui/icons-material/MicOff';
+import VoiceTextField from './VoiceTextField';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -21,21 +19,6 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
   
   const addTask = useTasksStore((state) => state.addTask);
   const updateTask = useTasksStore((state) => state.updateTask);
-  const { isListening, transcript, startListening, stopListening, isSupported, setTranscript } = useSpeechToText()
-  
-  const handleMicButton = () => {
-    if (!isListening) {
-      setTitle('')
-      setTranscript('')
-      startListening()
-    } else {
-      stopListening()
-    }
-  }
-
-  useEffect(() => {
-    setTitle(transcript)
-  }, [transcript])
 
   useEffect(() => {
     if (task) {
@@ -73,27 +56,22 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
       <DialogTitle>{task ? 'Редагувати задачу' : 'Нова задача'}</DialogTitle>
       <DialogContent>
         <form id="task-form" onSubmit={handleSubmit}>
-        <TextField
+        <VoiceTextField
           id="task-title"
           label="Назва задачі"
           variant="standard"
           value={title}
           required
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(value) => setTitle(value)}
         />
-        {isSupported
-        ? <Button onClick={handleMicButton}>
-            {isListening ? <MicOffIcon /> : <MicIcon />}
-          </Button>
-        : null }
         <br />
-        <TextField
+        <VoiceTextField
           id="task-descr"
           label="Детальний опис"
           variant="standard"
           value={description}
           required
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(value) => setDescription(value)}
         />
         </form>
       </DialogContent>
