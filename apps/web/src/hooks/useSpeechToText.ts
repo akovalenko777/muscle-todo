@@ -14,6 +14,10 @@ export function useSpeechToText() {
 
   const isSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
+  const capitalizeFirstLetter = (text: string): string => {
+    return text ? text.charAt(0).toUpperCase() + text.slice(1) : text
+  }
+
   const startListening = useCallback(() => {
     if (!isSupported || isListening) return;
 
@@ -29,10 +33,10 @@ export function useSpeechToText() {
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalArr = []
-      for(let i=0;i<event.results.length;i++){
+      for (let i = 0; i < event.results.length; i++) {
         finalArr.push(event.results[i][0].transcript.trim())
       }
-      setTranscript(finalArr.join(' '))
+      setTranscript(capitalizeFirstLetter(finalArr.join(' ')))
     }
 
     recognition.onerror = (event) => {
