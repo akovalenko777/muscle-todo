@@ -6,17 +6,24 @@ interface TasksState {
   tasks: Task[];
   loading: boolean;
   taskForEdit: Task | null;
+  taskForDelete: {
+    id: string;
+    title: string
+  } | null;
   setTasks: (tasks: Task[]) => void;
   updateTaskStatus: (taskId: string, newStatus: TaskStatus) => Promise<void>;
   addTask: (task: Task) => void;
   updateTask: (task: Task) => void;
+  deleteTask: (taskId: string) => void;
   setTaskForEdit: (task: Task | null) => void;
+  setTaskForDelete: (taskForDelete: { id: string, title: string } | null) => void;
 }
 
 export const useTasksStore = create<TasksState>((set, get) => ({
   tasks: [],
   loading: false,
   taskForEdit: null,
+  taskForDelete: null,
   setTasks: (tasks) => set({ tasks }),
 
   updateTaskStatus: async (taskId, newStatus) => {
@@ -35,9 +42,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       set({ tasks: previousTasks })
     }
   },
-  addTask: (task) => {
-    set({ tasks: [...get().tasks, task] })
-  },
+  addTask: (task) => set({ tasks: [...get().tasks, task] }),
   updateTask: (task) => {
     const tasks = get().tasks
     const updatedTasks = tasks.map((taskItem) =>
@@ -45,7 +50,11 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     )
     set({ tasks: updatedTasks })
   },
-  setTaskForEdit: (taskForEdit) => {
-    set({ taskForEdit })
-  }
+  deleteTask: (taskId) => {
+    const tasks = get().tasks
+    const updatedTasks = tasks.filter((task) => task.id !== taskId)
+    set({ tasks: updatedTasks })
+  },
+  setTaskForEdit: (taskForEdit) => set({ taskForEdit }),
+  setTaskForDelete: (taskForDelete) => set({ taskForDelete })
 }));

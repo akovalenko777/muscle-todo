@@ -21,7 +21,7 @@ export default function LoginPage() {
         navigate('/board')
       }
     } catch (_error: unknown) {
-      toast.error('Email or password is incorrect')
+      toast.error('Невірний email або пароль.')
     }
 
   }
@@ -32,7 +32,7 @@ export default function LoginPage() {
         <div className="form-row">
           <TextField
             id="login-email"
-            label="Your email"
+            label="Email"
             variant="standard"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -41,7 +41,7 @@ export default function LoginPage() {
         <div className="form-row">
           <TextField
             id="login-pass"
-            label="Password"
+            label="Пароль"
             variant="standard"
             type="password"
             value={password}
@@ -49,7 +49,7 @@ export default function LoginPage() {
           />
         </div>
         <div className="form-btn">
-          <Button variant="contained" type="submit">Sign In</Button>
+          <Button variant="contained" type="submit">Увійти</Button>
         </div>
       </form>
     </div>

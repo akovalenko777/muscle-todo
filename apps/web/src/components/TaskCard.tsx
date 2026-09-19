@@ -1,8 +1,9 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { Card, CardContent, Typography, Chip, Button } from '@mui/material';
+import { Card, CardContent, Typography, Chip, IconButton } from '@mui/material';
 import type { Task } from '../types/task';
 import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useTasksStore } from '../store/tasksStore';
 import type { SyntheticEvent, KeyboardEvent } from 'react';
 
@@ -11,7 +12,7 @@ interface TaskCardProps {
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
-  const setTaskForEdit = useTasksStore((store) => store.setTaskForEdit)
+  const { setTaskForEdit, setTaskForDelete } = useTasksStore()
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
   });
@@ -26,10 +27,18 @@ export default function TaskCard({ task }: TaskCardProps) {
     setTaskForEdit(task)
   }
 
-  const handleEditPress = (e: KeyboardEvent) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.stopPropagation()
     }
+  }
+
+  const handleDeleteTask = (e: SyntheticEvent, taskId: string, title: string) => {
+    e.stopPropagation()
+    setTaskForDelete({
+      id: taskId,
+      title: title
+    })
   }
 
   return (
@@ -42,11 +51,20 @@ export default function TaskCard({ task }: TaskCardProps) {
         {task.owners.length > 0 && (
           <Chip size="small" label={task.owners[0].user.name} sx={{ mt: 1 }} />
         )}
-        <Button
+        <IconButton
+          color="info"
           onClick={(e) => handleEditClick(e, task)}
-          onKeyDown={(e) => handleEditPress(e)}>
+          onKeyDown={(e) => handleKeyPress(e)}>
           <EditIcon />
-        </Button>
+        </IconButton>
+        <IconButton
+          aria-label="delete"
+          color="error"
+          onClick={(e) => handleDeleteTask(e, task.id, task.title)}
+          onKeyDown={(e) => handleKeyPress(e)}
+        >
+          <DeleteIcon />
+        </IconButton>
       </CardContent>
     </Card>
   );

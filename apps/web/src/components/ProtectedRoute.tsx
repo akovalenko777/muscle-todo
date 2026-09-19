@@ -38,7 +38,7 @@ export default function ProtectedRoute() {
 
   return (
     <div className="application">
-      <Button variant="contained" onClick={logout}>Log out</Button>
+      <Button variant="contained" onClick={logout}>Вийти</Button>
       <Outlet />
     </div>
   )

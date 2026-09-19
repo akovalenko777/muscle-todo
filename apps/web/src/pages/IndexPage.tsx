@@ -5,7 +5,7 @@ export default function IndexPage(){
     <>
       <h1>This is main page</h1>
       <br />
-      <Link to={'/login'}>Sign In</Link>
+      <Link to={'/login'}>Увійти</Link>
     </>
   )
 }

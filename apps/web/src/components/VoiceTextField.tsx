@@ -16,14 +16,6 @@ export default function VoiceTextField({ value, onChange, ...textFieldProps }: V
     onChange(transcript)
   }, [transcript]);
 
-  const handleMicClick = () => {
-    if (!isListening) {
-      startListening()
-    } else {
-      stopListening()
-    }
-  };
-
   return (
     <TextField
       {...textFieldProps}
@@ -33,7 +25,14 @@ export default function VoiceTextField({ value, onChange, ...textFieldProps }: V
         input: {
           endAdornment: isSupported ? (
             <InputAdornment position="end">
-              <IconButton onClick={handleMicClick} edge="end">
+              <IconButton
+                onMouseDown={() => startListening()}
+                onMouseUp={() => stopListening()}
+                onMouseLeave={() => { if(isListening) stopListening()}}
+                onTouchStart={() => startListening()}
+                onTouchEnd={() => stopListening()}
+                edge="end"
+              >
                 {isListening ? <MicOffIcon /> : <MicIcon />}
               </IconButton>
             </InputAdornment>

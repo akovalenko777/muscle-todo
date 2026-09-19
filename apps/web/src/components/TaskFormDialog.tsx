@@ -71,6 +71,9 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
           variant="standard"
           value={description}
           required
+          multiline
+          minRows={3}
+          maxRows={8}
           onChange={(value) => setDescription(value)}
         />
         </form>
