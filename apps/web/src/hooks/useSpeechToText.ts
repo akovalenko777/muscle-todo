@@ -32,7 +32,7 @@ export function useSpeechToText() {
     recognition.interimResults = true;
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalArr = []
+      const finalArr = []
       for (let i = 0; i < event.results.length; i++) {
         finalArr.push(event.results[i][0].transcript.trim())
       }

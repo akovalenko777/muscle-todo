@@ -1,7 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { Button } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useEffectEvent } from "react";
 import api from "../api/axios";
 import type { AxiosResponse } from "axios";
 import Loader from "./Loader";
@@ -13,12 +13,6 @@ export default function ProtectedRoute() {
   const [loading, setLoading] = useState(true)
 
   const restoreSessionOrRedirect = async () => {
-    setLoading(true)
-    if(!localStorage.getItem('refreshToken')) {
-      setLoading(false)
-      navigate('/login')
-      return
-    }
     try {
       const userResponse: AxiosResponse = await api.get('/users/me')
       updateUser(userResponse.data)
@@ -29,9 +23,18 @@ export default function ProtectedRoute() {
     }
   }
 
+  const onMountCheck = useEffectEvent(() => {
+    void restoreSessionOrRedirect()
+  })
+
   useEffect(() => {
-    restoreSessionOrRedirect()
+    onMountCheck()
   }, [])
+
+  if(!localStorage.getItem('refreshToken')) {
+    navigate('/login')
+    return
+  }
 
   if (loading) return <Loader />
   if (!accessToken) return <Navigate to="/login" replace />

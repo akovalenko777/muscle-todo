@@ -20,7 +20,7 @@ export default function LoginPage() {
         login(response.data.accessToken, response.data.refreshToken, response.data.user)
         navigate('/board')
       }
-    } catch (_error: unknown) {
+    } catch {
       toast.error('Невірний email або пароль.')
     }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, type SyntheticEvent } from 'react';
+import { useState, type SyntheticEvent } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import api from '../api/axios';
 import { useTasksStore } from '../store/tasksStore';
@@ -14,21 +14,11 @@ interface TaskFormDialogProps {
 }
 
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState<string>(task?.title ?? '');
+  const [description, setDescription] = useState<string>(task?.description ?? '');
   
   const addTask = useTasksStore((state) => state.addTask);
   const updateTask = useTasksStore((state) => state.updateTask);
-
-  useEffect(() => {
-    if (task) {
-      setTitle(task.title)
-      setDescription(task.description)
-    } else {
-      setTitle('')
-      setDescription('')
-    }
-  }, [task]);
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault()

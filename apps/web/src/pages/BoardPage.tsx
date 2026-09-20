@@ -19,7 +19,6 @@ const COLUMNS: { status: Task['status']; label: string }[] = [
 
 export default function BoardPage() {
   const [open, setOpen] = useState<boolean>(false)
-  const [openConfirm, setOpenConfirm] = useState<boolean>(false)
   const { tasks, taskForEdit, taskForDelete, setTasks, updateTaskStatus, setTaskForEdit, setTaskForDelete, deleteTask } = useTasksStore();
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -44,7 +43,6 @@ export default function BoardPage() {
   }
 
   const handleCloseConfirm = () => {
-    setOpenConfirm(false)
     if (taskForDelete) setTaskForDelete(null)
   }
 
@@ -72,15 +70,7 @@ export default function BoardPage() {
       }
     }
     fetchTasks()
-  }, []);
-
-  useEffect(() => {
-    taskForEdit && setOpen(true)
-  }, [taskForEdit])
-
-  useEffect(() => {
-    taskForDelete && setOpenConfirm(true)
-  }, [taskForDelete])
+  }, [setTasks]);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 5 }
@@ -99,7 +89,7 @@ export default function BoardPage() {
   return (
     <>
       <Button variant="contained" onClick={handleAddTask}>Додати задачу</Button>
-      <TaskFormDialog open={open} onClose={handleDialogClose} task={taskForEdit} />
+      <TaskFormDialog key={taskForEdit?.id ?? 'new'} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
           {COLUMNS.map((column) => (
@@ -113,7 +103,7 @@ export default function BoardPage() {
         </Box>
       </DndContext>
       <TaskDeleteDialog
-        open={openConfirm}
+        open={taskForDelete !== null}
         title={taskForDelete?.title || ''}
         onClose={handleCloseConfirm}
         onConfirm={handleDeleteConfirm}

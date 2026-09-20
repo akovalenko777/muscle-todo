@@ -6,16 +6,14 @@ export async function mockSpeechRecognition(page: Page, dictatedText: string) {
       continuous = false;
       interimResults = false;
       lang = '';
-      onresult: ((event: any) => void) | null = null;
-      onerror: ((event: any) => void) | null = null;
+      onresult: ((event: SpeechRecognitionEvent) => void) | null = null;
+      onerror: ((event: SpeechRecognitionEvent) => void) | null = null;
       onend: (() => void) | null = null;
 
       start() {
-        // питання: скільки часу варто "симулювати" затримку розпізнавання
-        // (setTimeout), і що станеться з тестом, якщо взагалі прибрати затримку —
-        // чи React встигне обробити подію синхронно?
         setTimeout(()=>{
-          this.onresult?.({ results: [[{ transcript: text }]] } as any)
+          const results = [[{ transcript: text, confidence: 0.9, isFinal: true }] as unknown as SpeechRecognitionResult];
+          this.onresult?.({ results } as unknown as SpeechRecognitionEvent)
         }, 200)
       }
 
@@ -28,7 +26,7 @@ export async function mockSpeechRecognition(page: Page, dictatedText: string) {
       }
     }
 
-    (window as any).SpeechRecognition = FakeSpeechRecognition;
-    (window as any).webkitSpeechRecognition = FakeSpeechRecognition;
+    (window as unknown as { SpeechRecognition: unknown }).SpeechRecognition = FakeSpeechRecognition;
+    (window as unknown as { webkitSpeechRecognition: unknown }).webkitSpeechRecognition = FakeSpeechRecognition;
   }, dictatedText);
 }

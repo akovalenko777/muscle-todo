@@ -14,7 +14,7 @@ export default function VoiceTextField({ value, onChange, ...textFieldProps }: V
 
   useEffect(() => {
     onChange(transcript)
-  }, [transcript]);
+  }, [transcript, onChange]);
 
   return (
     <TextField
