@@ -28,13 +28,14 @@ export default function ProtectedRoute() {
   })
 
   useEffect(() => {
+    if(!localStorage.getItem('refreshToken')) {
+      navigate('/login')
+      return
+    }
     onMountCheck()
-  }, [])
+  }, [navigate])
 
-  if(!localStorage.getItem('refreshToken')) {
-    navigate('/login')
-    return
-  }
+  
 
   if (loading) return <Loader />
   if (!accessToken) return <Navigate to="/login" replace />
