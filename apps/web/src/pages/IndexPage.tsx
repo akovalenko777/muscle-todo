@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 export default function IndexPage(){
   return (
@@ -11,7 +12,7 @@ export default function IndexPage(){
       <br />
       або використати свій обліковий запис Google
       <br />
-      
+      <GoogleSignInButton />
     </>
   )
 }

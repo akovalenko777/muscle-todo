@@ -7,18 +7,23 @@ import ms from 'ms';
 import { createHash } from "node:crypto";
 import { JwtPayload } from "./jwt.strategy.js";
 import { randomUUID } from 'node:crypto';
+import { OAuth2Client } from 'google-auth-library';
 
-interface IUser {
+export interface IUser {
   id: string
   email: string
 }
 @Injectable()
 export class AuthService {
+  private readonly googleClient: OAuth2Client;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.googleClient = new OAuth2Client(this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'))
+  }
 
   private generateTokens(user: IUser) {
     const payload = { sub: user.id, username: user.email, jti: randomUUID() }
@@ -40,27 +45,7 @@ export class AuthService {
     }
   }
 
-  async validateUser(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-      select: { id: true, email: true, name: true, passwordHash: true }
-    })
-    if(!user) {
-      throw new UnauthorizedException()
-    }
-
-    const isPasswordOk = await bcrypt.compare(password, user.passwordHash)
-
-    if (!isPasswordOk) {
-      throw new UnauthorizedException()
-    }
-    // eslint-disable-next-line no-unused-vars
-    const { passwordHash, ...userWithoutPassword } = user
-    return userWithoutPassword
-  }
-
-  async login(email: string, password: string) {
-    const user = await this.validateUser(email, password)
+  private async upsertRefreshToken(user: IUser) {
     const { refreshToken, accessToken, expiresAt, refreshHash } = this.generateTokens(user)
 
     await this.prisma.refreshToken.upsert({
@@ -81,6 +66,34 @@ export class AuthService {
       refreshToken,
       user
     }
+  }
+
+  async validateUser(email: string, password: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, name: true, passwordHash: true, googleId: true }
+    })
+    if(!user) {
+      throw new UnauthorizedException()
+    }
+
+    if(!user.passwordHash){
+      throw new UnauthorizedException('This account uses Google sign-in. Please log in with Google.')
+    }
+
+    const isPasswordOk = await bcrypt.compare(password, user.passwordHash)
+
+    if (!isPasswordOk) {
+      throw new UnauthorizedException()
+    }
+    // eslint-disable-next-line no-unused-vars
+    const { passwordHash, ...userWithoutPassword } = user
+    return userWithoutPassword
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password)
+    return await this.upsertRefreshToken(user)
   }
 
   async refresh(refreshToken: string) {
@@ -120,5 +133,46 @@ export class AuthService {
       accessToken,
       refreshToken: refreshTokenNew
     }
+  }
+
+  async loginWithGoogle(idToken: string) {
+    const ticket = await this.googleClient.verifyIdToken({
+      idToken,
+      audience: this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID')
+    })
+
+    const payload = ticket.getPayload();
+    if (!payload?.email) {
+      throw new UnauthorizedException("Invalid Google token")
+    }
+
+    let user = await this.prisma.user.findFirst({
+      where: { googleId: payload.sub } as any,
+      select: { id: true, email: true }
+    })
+
+    if (!user) {
+      //NOTE: try to find user by email
+      const existRegularUser = await this.prisma.user.findUnique({
+        where: { email: payload.email },
+        select: { id: true, email: true, googleId: true }
+      })
+
+      if (existRegularUser) {
+        throw new UnauthorizedException('Use regular email/password for login.')
+      }
+
+      //NOTE: create new user
+      user = await this.prisma.user.create({
+        data: {
+          email: payload.email,
+          googleId: payload.sub,
+          name: payload.name || ''
+        },
+        select: { id: true, email: true }
+      })
+    }
+
+    return await this.upsertRefreshToken(user)
   }
 }

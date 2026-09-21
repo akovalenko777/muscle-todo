@@ -1,10 +1,9 @@
 import { Button, TextField } from "@mui/material"
-import { AxiosError, isAxiosError, type AxiosResponse } from "axios"
+import { isAxiosError, type AxiosResponse } from "axios"
 import { useState, type SyntheticEvent } from "react"
 import { toast } from "react-toastify"
 import api from "../api/axios"
-import { useAuthStore } from "../store/authStore"
-import { useNavigate } from "react-router-dom"
+import useLogin from "../hooks/useLogin"
 
 interface RegisterValues {
   email: string
@@ -14,8 +13,7 @@ interface RegisterValues {
 }
 
 export default function RegisterPage() {
-  const navigate = useNavigate()
-  const login = useAuthStore((state) => state.login)
+  const { doLogin } = useLogin()
   const [values, setValues] = useState<RegisterValues>({
     email: '',
     name: '',
@@ -34,14 +32,11 @@ export default function RegisterPage() {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password_repeat, ...data } = values
       const registerResponse: AxiosResponse = await api.post('/users', data)
       if (registerResponse.status === 201) {
-        const response: AxiosResponse = await api.post('/auth/login', { email: values.email, password: values.password })
-        if (response.status === 200) {
-          login(response.data.accessToken, response.data.refreshToken, response.data.user)
-          navigate('/board')
-        }
+        await doLogin('/auth/login', { email: values.email, password: values.password })
       }
     } catch (error: unknown) {
       if(!isAxiosError(error)) {
@@ -49,7 +44,7 @@ export default function RegisterPage() {
         return
       }
 
-      const originalRequest = error?.config
+      const originalRequest = error.config
       if (originalRequest?.url === '/users') {
         const messages = isAxiosError(error)
           ? error.response?.data?.message
@@ -65,7 +60,7 @@ export default function RegisterPage() {
         }
       }
       if (originalRequest?.url === '/auth/login') {
-        toast.error('Не вдалося авторизувати нового користувача. Спробуйте ще раз.')
+        toast.error('Не вдалося авторизувати нового користувача.')
       }
     }
   }
