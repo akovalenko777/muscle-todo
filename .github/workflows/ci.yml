@@ -30,6 +30,7 @@ jobs:
       JWT_ACCESS_EXPIRES_IN: 15m
       JWT_REFRESH_SECRET: ci-test-refresh-secret
       JWT_REFRESH_EXPIRES_IN: 7d
+      GOOGLE_CLIENT_ID: ci-test-google-client-id
 
     steps:
       - uses: actions/checkout@v7
