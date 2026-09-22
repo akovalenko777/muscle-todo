@@ -3,13 +3,14 @@ import { PrismaService } from "../prisma/prisma.service.js";
 import { CreateUserDto } from "./dto/create-user.dto.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { UpdateUserDto } from "./dto/update-user.dto.js";
+import { ConfigService } from '@nestjs/config';
 import bcrypt from 'bcrypt';
 
 const omit = { passwordHash: true }
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService, private readonly configService: ConfigService) { }
 
   findAll() {
     return this.prisma.user.findMany({
@@ -31,10 +32,12 @@ export class UsersService {
 
   async create(dto: CreateUserDto) {
     const { password, ...data } = dto
+    const adminEmail = this.configService.get<string>('ADMIN_EMAIL')
+    const role = data.email === adminEmail ? 'ADMIN' : 'USER'
     try {
       const passwordHash = await bcrypt.hash(password, 10)
       return await this.prisma.user.create({
-        data: { passwordHash, ...data },
+        data: { passwordHash, ...data, role },
         omit
       })
 

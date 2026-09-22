@@ -9,9 +9,11 @@ import { JwtPayload } from "./jwt.strategy.js";
 import { randomUUID } from 'node:crypto';
 import { OAuth2Client } from 'google-auth-library';
 
+export type TRole = 'USER' | 'ADMIN'
 export interface IUser {
   id: string
   email: string
+  role: TRole
 }
 @Injectable()
 export class AuthService {
@@ -26,7 +28,7 @@ export class AuthService {
   }
 
   private generateTokens(user: IUser) {
-    const payload = { sub: user.id, username: user.email, jti: randomUUID() }
+    const payload = { sub: user.id, username: user.email, jti: randomUUID(), role: user.role }
     const expiresIn =  this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRES_IN') as JwtSignOptions['expiresIn']
     const expiresAt = new Date(new Date().getTime() + ms(expiresIn as ms.StringValue))
     const refreshToken = this.jwtService.sign(payload, {
@@ -71,7 +73,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true, name: true, passwordHash: true, googleId: true }
+      select: { id: true, email: true, name: true, passwordHash: true, googleId: true, role: true }
     })
     if(!user) {
       throw new UnauthorizedException()
@@ -119,7 +121,7 @@ export class AuthService {
       throw new UnauthorizedException('Token is revoked.')
     }
 
-    const { refreshToken: refreshTokenNew, accessToken, expiresAt, refreshHash } = this.generateTokens({id: payload.sub, email: payload.username})
+    const { refreshToken: refreshTokenNew, accessToken, expiresAt, refreshHash } = this.generateTokens({id: payload.sub, email: payload.username, role: payload.role })
 
     await this.prisma.refreshToken.update({
       where: { userId: payload.sub },
@@ -148,7 +150,7 @@ export class AuthService {
 
     let user = await this.prisma.user.findFirst({
       where: { googleId: payload.sub } as any,
-      select: { id: true, email: true }
+      select: { id: true, email: true, role: true }
     })
 
     if (!user) {
@@ -169,7 +171,7 @@ export class AuthService {
           googleId: payload.sub,
           name: payload.name || ''
         },
-        select: { id: true, email: true }
+        select: { id: true, email: true, role: true }
       })
     }
 
