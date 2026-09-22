@@ -78,7 +78,7 @@ model TaskOwner {
 
 model Tag {
   id        String    @id @default(cuid())
-  text      String
+  text      String    @unique
   color     String    @default("#ffffff")
 
   tasks     TaskTag[]

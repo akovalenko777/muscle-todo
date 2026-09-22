@@ -9,8 +9,9 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt-auth.guard.js';
 import { RoleGuard } from './auth/roles.guard.js';
 import { AppService } from './app.service.js';
+import { TagsModule } from './tags/tags.module.js';
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, TasksModule, UsersModule, AuthModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, TasksModule, UsersModule, AuthModule, TagsModule],
   controllers: [AppController],
   providers: [AppService,
     {

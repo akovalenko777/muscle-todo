@@ -31,4 +31,9 @@ export class CreateTaskDto {
   @IsArray()
   @IsString({ each: true })
   ownerIds?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tagIds?: string[];
 }

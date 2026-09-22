@@ -47,6 +47,21 @@ describe('Auth (e2e)', () => {
         })
     })
 
+    it('register admin user', async () => {
+      await request(app.getHttpServer())
+        .post('/users')
+        .send({
+          email: 'admin@localhost.com',
+          name: 'Admin',
+          password: 'Aa1'
+        })
+        .expect(201)
+        .then(response => {
+          expect(response.body).toHaveProperty('role')
+          expect(response.body.role).toBe('ADMIN')
+        })
+    })
+
     it('logs in and receives token pair', async () => {
       await request(app.getHttpServer())
         .post('/users')

@@ -4,14 +4,21 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 
-const ownerInclude = {
+const include = {
   owners: {
     include: {
       user: {
         select: { id: true, email: true, name: true, createdAt: true },
-      },
+      }
     },
   },
+  tags: {
+    include: {
+      tag: {
+        select: { id: true, text: true, color: true }
+      }
+    }
+  }
 } satisfies Prisma.TaskInclude;
 
 @Injectable()
@@ -21,7 +28,7 @@ export class TasksService {
   findAll(status?: TaskStatus) {
     return this.prisma.task.findMany({
       where: status ? { status } : undefined,
-      include: ownerInclude,
+      include,
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -29,7 +36,7 @@ export class TasksService {
   async findOne(id: string) {
     const task = await this.prisma.task.findUnique({
       where: { id },
-      include: ownerInclude,
+      include,
     });
     if (!task) {
       throw new NotFoundException(`Task ${id} not found`);
@@ -38,7 +45,7 @@ export class TasksService {
   }
 
   async create(dto: CreateTaskDto) {
-    const { ownerIds, ...data } = dto;
+    const { ownerIds, tagIds, ...data } = dto;
     try {
       return await this.prisma.task.create({
         data: {
@@ -46,8 +53,11 @@ export class TasksService {
           owners: ownerIds
             ? { create: ownerIds.map((userId) => ({ user: { connect: { id: userId } } })) }
             : undefined,
+          tags: tagIds
+            ? { create: tagIds.map((tagId) => ({ tag: { connect: { id: tagId } } })) }
+            : undefined,
         },
-        include: ownerInclude,
+        include,
       });
     } catch (error) {
       // Nested `connect` on a missing user surfaces as P2025 here (not P2003 -
@@ -60,8 +70,8 @@ export class TasksService {
   }
 
   async update(id: string, dto: UpdateTaskDto) {
-    const { ownerIds, ...data } = dto;
-    if (ownerIds !== undefined) {
+    const { ownerIds, tagIds, ...data } = dto;
+    if (ownerIds !== undefined || tagIds !== undefined) {
       // createMany's P2003 below can't distinguish "task missing" from "ownerId
       // missing" (no reliable meta on the FK violation) - confirm the task
       // exists before touching TaskOwner rows at all.
@@ -80,10 +90,21 @@ export class TasksService {
             });
           }
         }
+        if (tagIds !== undefined) {
+          await tx.taskTag.deleteMany({
+            where: { taskId: id, tagId: { notIn: tagIds } },
+          });
+          if (tagIds.length > 0) {
+            await tx.taskTag.createMany({
+              data: tagIds.map((tagId) => ({ taskId: id, tagId })),
+              skipDuplicates: true,
+            });
+          }
+        }
         return tx.task.update({
           where: { id },
           data,
-          include: ownerInclude,
+          include,
         });
       });
     } catch (error) {
@@ -106,7 +127,12 @@ export class TasksService {
         return new NotFoundException(`Task ${id} not found`);
       }
       if (error.code === 'P2003') {
-        return new BadRequestException('One or more ownerIds do not exist');
+        if (error.meta?.field_name === 'TaskOwner_userId_fkey') {
+          return new BadRequestException('One or more ownerIds do not exist');
+        }
+        if (error.meta?.field_name === 'TaskTag_tagId_fkey') {
+          return new BadRequestException('One or more tagIds do not exist');
+        }
       }
     }
     return error;
