@@ -1,7 +1,8 @@
-import { Button, TextField } from "@mui/material"
+import { Button, Card, CardActions, CardContent, Stack, TextField, Typography } from "@mui/material"
 import { useState, type SyntheticEvent } from "react"
 import { toast } from "react-toastify"
 import useLogin from "../hooks/useLogin"
+import { Link } from "react-router-dom"
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('')
@@ -18,31 +19,38 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-page">
-      <form onSubmit={submitHandler}>
-        <div className="form-row">
-          <TextField
-            id="login-email"
-            label="Email"
-            variant="standard"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="form-row">
-          <TextField
-            id="login-pass"
-            label="Пароль"
-            variant="standard"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="form-btn">
-          <Button variant="contained" type="submit">Увійти</Button>
-        </div>
-      </form>
+    <div className="login-page page-center">
+      <Card sx={{ minWidth:'300px' }}>
+        <CardContent>
+          <Typography variant="h5" component="div" gutterBottom sx={{ textAlign: 'center' }}>
+            Авторизація
+          </Typography>
+          <form onSubmit={submitHandler} id="login-form">
+            <Stack spacing={2}>
+              <TextField
+                id="login-email"
+                label="Email"
+                variant="standard"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <TextField
+                id="login-pass"
+                label="Пароль"
+                variant="standard"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Stack>
+          </form>
+        </CardContent>
+        <CardActions sx={{ justifyContent: 'center', flexDirection: 'column', gap: 2 }}>
+          <Button variant="contained" type="submit" form="login-form">Увійти</Button>
+          <Button component={Link} to="/register" variant="text">або зареєструйтися</Button>
+        </CardActions>
+      </Card>
+
     </div>
   )
 }

@@ -14,11 +14,10 @@ interface TaskFormDialogProps {
 }
 
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
-  const [title, setTitle] = useState<string>(task?.title ?? '');
-  const [description, setDescription] = useState<string>(task?.description ?? '');
+  const [title, setTitle] = useState<string>(task?.title || '');
+  const [description, setDescription] = useState<string>(task?.description || '');
   
-  const addTask = useTasksStore((state) => state.addTask);
-  const updateTask = useTasksStore((state) => state.updateTask);
+  const { addTask, updateTask } = useTasksStore();
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault()

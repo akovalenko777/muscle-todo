@@ -9,6 +9,7 @@ import Column from '../components/Column';
 import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import TaskFormDialog from '../components/TaskFormDialog';
 import TaskDeleteDialog from '../components/TaskDeleteDialog';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const COLUMNS: { status: Task['status']; label: string }[] = [
   { status: 'PLANNED', label: 'Заплановано' },
@@ -88,7 +89,7 @@ export default function BoardPage() {
 
   return (
     <>
-      <Button variant="contained" onClick={handleAddTask}>Додати задачу</Button>
+      <Button variant="contained" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
       <TaskFormDialog key={taskForEdit?.id ?? 'new'} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Box sx={{ display: 'flex', gap: 2, p: 2 }}>

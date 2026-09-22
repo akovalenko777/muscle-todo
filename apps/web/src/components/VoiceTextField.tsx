@@ -13,7 +13,7 @@ export default function VoiceTextField({ value, onChange, ...textFieldProps }: V
   const { isListening, transcript, startListening, stopListening, isSupported } = useSpeechToText();
 
   useEffect(() => {
-    onChange(transcript)
+    if(transcript !== '') onChange(transcript)
   }, [transcript, onChange]);
 
   return (
