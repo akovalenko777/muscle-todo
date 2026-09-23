@@ -1,24 +1,25 @@
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 
-interface TaskDeleteDialogProps {
+interface DeleteDialogProps {
   open: boolean;
   title: string;
+  text: string;
   onClose: () => void;
   onConfirm: () => void;
 }
 
-export default function TaskDeleteDialog({open, title, onClose, onConfirm}: TaskDeleteDialogProps) {
+export default function DeleteDialog({open, title, text, onClose, onConfirm}: DeleteDialogProps) {
   return (
     <Dialog
       open={open}
       onClose={onClose}
     >
       <DialogTitle>
-        Видалення задачі
+        {title}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Видалити задачу "{title}"?.
+          {text}
         </DialogContentText>
       </DialogContent>
       <DialogActions>

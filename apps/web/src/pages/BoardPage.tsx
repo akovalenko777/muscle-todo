@@ -4,12 +4,12 @@ import api from '../api/axios';
 import type { Task, TaskStatus } from '../types/task';
 import { toast } from 'react-toastify';
 import type { AxiosResponse } from 'axios';
-import { Box, Button } from '@mui/material'
+import { Box, Button, Stack } from '@mui/material'
 import Column from '../components/Column';
 import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import TaskFormDialog from '../components/TaskFormDialog';
-import TaskDeleteDialog from '../components/TaskDeleteDialog';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteDialog from '../components/DeleteDialog';
 
 const COLUMNS: { status: Task['status']; label: string }[] = [
   { status: 'PLANNED', label: 'Заплановано' },
@@ -89,7 +89,11 @@ export default function BoardPage() {
 
   return (
     <>
-      <Button variant="contained" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
+      <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
+        <h1>Список задач</h1>
+        <Button variant="contained" color="success" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
+      </Stack>
+      
       <TaskFormDialog key={taskForEdit?.id ?? 'new'} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
@@ -103,9 +107,10 @@ export default function BoardPage() {
           ))}
         </Box>
       </DndContext>
-      <TaskDeleteDialog
+      <DeleteDialog
         open={taskForDelete !== null}
-        title={taskForDelete?.title || ''}
+        title="Видалення задачі"
+        text={`Видалити задачу "${taskForDelete?.title || ''}"?.`}
         onClose={handleCloseConfirm}
         onConfirm={handleDeleteConfirm}
       />

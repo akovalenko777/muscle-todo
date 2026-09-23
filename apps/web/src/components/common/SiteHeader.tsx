@@ -17,7 +17,7 @@ export default function SiteHeader() {
     <header className="header">
       <Container maxWidth='xl' sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="logo">
-          <Link to={'/'}>
+          <Link to={'/board'}>
             <img src={Logo} alt="Kanban" />
           </Link>
         </div>

@@ -1,4 +1,4 @@
-import { useState, useRef, type MouseEvent } from 'react';
+import { useState, useRef, type SyntheticEvent } from 'react';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -9,18 +9,16 @@ import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { useAuthStore } from '../../store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 export default function UserPopper(){
-  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const anchorRef = useRef<HTMLDivElement>(null);
   const logout = useAuthStore(store => store.logout)
+  const navigate = useNavigate()
 
-  const handleClick = () => {
-    //TODO: navbigate to profile page
-  };
-
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
+  const handleClick = (event: SyntheticEvent) => {
+    setAnchorEl(anchorEl ? null : event?.currentTarget as Element);
   };
 
   const handleClose = (event: Event) => {
@@ -31,7 +29,7 @@ export default function UserPopper(){
       return;
     }
 
-    setOpen(false);
+    setAnchorEl(null);
   };
   return (
     <>
@@ -40,22 +38,22 @@ export default function UserPopper(){
         ref={anchorRef}
         aria-label="Button group with a nested menu"
       >
-        <Button onClick={handleClick}>Профіль</Button>
+        <Button onClick={() => {}}>Профіль</Button>
         <Button
           size="small"
-          aria-controls={open ? 'split-button-menu' : undefined}
-          aria-expanded={open ? 'true' : undefined}
+          aria-controls={anchorEl ? 'split-button-menu' : undefined}
+          aria-expanded={anchorEl ? 'true' : undefined}
           aria-label="select merge strategy"
           aria-haspopup="menu"
-          onClick={handleToggle}
+          onClick={handleClick}
         >
           <ArrowDropDownIcon />
         </Button>
       </ButtonGroup>
       <Popper
         sx={{ zIndex: 1 }}
-        open={open}
-        anchorEl={anchorRef.current}
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
         role={undefined}
         transition
         disablePortal
@@ -71,6 +69,7 @@ export default function UserPopper(){
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
+                    <MenuItem onClick={() => navigate('/tags')}>Теги</MenuItem>
                     <MenuItem onClick={logout}>Вийти</MenuItem>
                 </MenuList>
               </ClickAwayListener>
