@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useTasksStore } from '../store/tasksStore';
 import api from '../api/axios';
 import type { Task, TaskStatus } from '../types/task';
@@ -10,6 +10,7 @@ import { DndContext, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSen
 import TaskFormDialog from '../components/TaskFormDialog';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteDialog from '../components/DeleteDialog';
+import Loader from '../components/Loader';
 
 const COLUMNS: { status: Task['status']; label: string }[] = [
   { status: 'PLANNED', label: 'Заплановано' },
@@ -93,8 +94,9 @@ export default function BoardPage() {
         <h1>Список задач</h1>
         <Button variant="contained" color="success" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
       </Stack>
-      
-      <TaskFormDialog key={taskForEdit?.id ?? 'new'} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
+      <Suspense fallback={<Loader />}>
+        <TaskFormDialog key={taskForEdit?.id ?? 'new'} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
+      </Suspense>
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
           {COLUMNS.map((column) => (

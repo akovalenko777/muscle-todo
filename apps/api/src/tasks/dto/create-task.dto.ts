@@ -7,7 +7,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { TaskStatus } from '../../generated/prisma/client.js';
+import { TaskPriority, TaskStatus } from '../../generated/prisma/client.js';
 
 export class CreateTaskDto {
   @IsString()
@@ -36,4 +36,8 @@ export class CreateTaskDto {
   @IsArray()
   @IsString({ each: true })
   tagIds?: string[];
+
+  @IsOptional()
+  @IsEnum(TaskPriority)
+  priority?: TaskPriority
 }

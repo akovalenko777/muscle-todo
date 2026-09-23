@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import TagFormDialog from "../components/TagFormDialog";
 import DeleteDialog from "../components/DeleteDialog";
 import { isAxiosError } from "axios";
+import { invalidateCache } from "../utils/fetchHelper";
 
 export interface Tag {
   id: string
@@ -60,6 +61,7 @@ export default function TagsPage() {
         tagIdForDelete.current = ''
         setOpenConfirm(false)
         toast.success('Тег успішно видалено')
+        invalidateCache('/tags')
       }
     } catch (error: unknown) {
       if (!isAxiosError(error)) {
@@ -95,6 +97,7 @@ export default function TagsPage() {
       const updatedTags = tags.map((el) => el.id === tag.id ? tag : el)
       setTags(updatedTags)
     }
+    invalidateCache('/tags')
   }
 
   return (
@@ -110,9 +113,6 @@ export default function TagsPage() {
             <Stack sx={{ justifyContent: 'flex-end', alignItems: 'center' }} direction="row" spacing={2}>
               <IconButton onClick={() => handleEdit(tag)} color="info">
                 <EditIcon />
-              </IconButton>
-              <IconButton onClick={() => handleDelete(tag.id, tag.text)} color="error">
-                <DeleteIcon />
               </IconButton>
               {isAdmin ? (
                 <IconButton onClick={() => handleDelete(tag.id, tag.text)} color="error">
