@@ -1,17 +1,11 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, TaskStatus } from '../generated/prisma/client.js';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, TaskStatus, UserRole } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
+import { TaskWhereInput, TaskWhereUniqueInput } from '../generated/prisma/models.js';
 
 const include = {
-  owners: {
-    include: {
-      user: {
-        select: { id: true, email: true, name: true, createdAt: true },
-      }
-    },
-  },
   tags: {
     include: {
       tag: {
@@ -23,19 +17,30 @@ const include = {
 
 @Injectable()
 export class TasksService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  findAll(status?: TaskStatus) {
+  findAll(userId: string, role: UserRole, status?: TaskStatus) {
+    const where: TaskWhereInput = {}
+    if (role === 'USER') {
+      where.OR = [{ assigneeId: userId }, { assigneeId: null }]
+    }
+    if (status) {
+      where.status = status
+    }
     return this.prisma.task.findMany({
-      where: status ? { status } : undefined,
+      where,
       include,
       orderBy: { createdAt: 'desc' },
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId: string, role: UserRole) {
+    const where: TaskWhereUniqueInput = { id }
+    if (role === 'USER') {
+      where.assigneeId = userId
+    }
     const task = await this.prisma.task.findUnique({
-      where: { id },
+      where,
       include,
     });
     if (!task) {
@@ -44,52 +49,59 @@ export class TasksService {
     return task;
   }
 
-  async create(dto: CreateTaskDto) {
-    const { ownerIds, tagIds, ...data } = dto;
+  async create(dto: CreateTaskDto, userId: string, role: UserRole) {
+    const { assigneeId, tagIds, ...data } = dto;
     try {
+      const dataForCreate: Prisma.TaskCreateInput = {
+        ...data,
+        tags: tagIds
+          ? { create: tagIds.map((tagId) => ({ tag: { connect: { id: tagId } } })) }
+          : undefined
+      }
+      if (role === 'USER') {
+        dataForCreate.assignee = { connect: { id: userId } }
+      } else if (role === 'ADMIN' && assigneeId) {
+        dataForCreate.assignee = { connect: { id: assigneeId } }
+      }
       return await this.prisma.task.create({
-        data: {
-          ...data,
-          owners: ownerIds
-            ? { create: ownerIds.map((userId) => ({ user: { connect: { id: userId } } })) }
-            : undefined,
-          tags: tagIds
-            ? { create: tagIds.map((tagId) => ({ tag: { connect: { id: tagId } } })) }
-            : undefined,
-        },
+        data: dataForCreate,
         include,
       });
     } catch (error) {
-      // Nested `connect` on a missing user surfaces as P2025 here (not P2003 -
-      // that's only for the raw FK violation createMany hits in `update`).
+      // Nested `connect` on a missing user surfaces as P2025
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new BadRequestException('One or more ownerIds do not exist');
+        throw new BadRequestException('Assignee does not exist');
       }
       throw error;
     }
   }
 
-  async update(id: string, dto: UpdateTaskDto) {
-    const { ownerIds, tagIds, ...data } = dto;
-    if (ownerIds !== undefined || tagIds !== undefined) {
-      // createMany's P2003 below can't distinguish "task missing" from "ownerId
-      // missing" (no reliable meta on the FK violation) - confirm the task
-      // exists before touching TaskOwner rows at all.
-      await this.findOne(id);
-    }
+  async update(id: string, dto: UpdateTaskDto, userId: string, role: UserRole) {
+    const { tagIds, assigneeId, ...data } = dto;
     try {
-      return await this.prisma.$transaction(async (tx) => {
-        if (ownerIds !== undefined) {
-          await tx.taskOwner.deleteMany({
-            where: { taskId: id, userId: { notIn: ownerIds } },
-          });
-          if (ownerIds.length > 0) {
-            await tx.taskOwner.createMany({
-              data: ownerIds.map((userId) => ({ taskId: id, userId })),
-              skipDuplicates: true,
-            });
-          }
+      if (role === 'USER') {
+        const task = await this.findOne(id, userId, role)
+        if (task.assigneeId !== userId) {
+          throw new ForbiddenException('You can only edit tasks assigned to you');
         }
+        if (assigneeId !== undefined) {
+          throw new BadRequestException('Unable to assign task. Use /claim for assigninig.');
+        }
+      } else if (tagIds !== undefined) {
+        await this.findOne(id, userId, role)
+      }
+
+      const dataForUpdate: Prisma.TaskUpdateInput = {
+        ...data
+      }
+
+      if (role === 'ADMIN' && assigneeId !== undefined) {
+        dataForUpdate.assignee = assigneeId === null
+          ? { disconnect: true }
+          : { connect: { id: assigneeId } }
+      }
+
+      return await this.prisma.$transaction(async (tx) => {
         if (tagIds !== undefined) {
           await tx.taskTag.deleteMany({
             where: { taskId: id, tagId: { notIn: tagIds } },
@@ -103,7 +115,7 @@ export class TasksService {
         }
         return tx.task.update({
           where: { id },
-          data,
+          data: dataForUpdate,
           include,
         });
       });
@@ -112,11 +124,57 @@ export class TasksService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string, role: UserRole) {
+    const where: TaskWhereUniqueInput = { id }
+    if (role === 'USER') {
+      where.assigneeId = userId
+    }
     try {
-      await this.prisma.task.delete({ where: { id } });
+      await this.prisma.task.delete({ where });
     } catch (error) {
-      throw this.mapTaskError(error, id);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Task ${id} not found`);
+        }
+      }
+      throw error
+    }
+  }
+
+  async claim(id: string, userId: string, role: UserRole) {
+    try {
+      return await this.prisma.task.update({
+        where: { id, assigneeId: null },
+        data: {
+          assigneeId: userId
+        }
+      })
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        await this.findOne(id, userId, role)
+        throw new ConflictException('Task already assigned');
+      }
+      throw error
+    }
+  }
+
+  async reset(id: string, userId: string, role: UserRole) {
+    try {
+      return await this.prisma.task.update({
+        where: { id, assigneeId: userId },
+        data: {
+          assigneeId: null
+        }
+      })
+    } catch (error: unknown) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        const task = await this.findOne(id, userId, role)
+        const message = task.assigneeId === null
+          ? 'Task is already unassigned'
+          : 'Task has been reassigned to someone else'
+        throw new ConflictException(message);
+      }
+      throw error
     }
   }
 
@@ -127,12 +185,7 @@ export class TasksService {
         return new NotFoundException(`Task ${id} not found`);
       }
       if (error.code === 'P2003') {
-        if (error.meta?.field_name === 'TaskOwner_userId_fkey') {
-          return new BadRequestException('One or more ownerIds do not exist');
-        }
-        if (error.meta?.field_name === 'TaskTag_tagId_fkey') {
-          return new BadRequestException('One or more tagIds do not exist');
-        }
+        return new BadRequestException('One or more tagIds do not exist');
       }
     }
     return error;

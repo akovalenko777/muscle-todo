@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateIf
 } from 'class-validator';
 import { TaskPriority, TaskStatus } from '../../generated/prisma/client.js';
 
@@ -28,9 +29,9 @@ export class CreateTaskDto {
   executionTime?: number;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  ownerIds?: string[];
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  assigneeId?: string | null;
 
   @IsOptional()
   @IsArray()

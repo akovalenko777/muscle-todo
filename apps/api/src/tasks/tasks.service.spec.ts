@@ -5,14 +5,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { TasksService } from './tasks.service.js';
 
 describe('TasksService', () => {
-  it('update() should throw NotFoundException, not BadRequestException, when the task does not exist but ownerIds is provided in the body', async () => {
+  it('update() should throw NotFoundException, not BadRequestException, when the task does not exist but tagIds is provided in the body', async () => {
     const fkViolation = new Prisma.PrismaClientKnownRequestError(
       'Foreign key constraint failed on the field: `taskId`',
       { code: 'P2003', clientVersion: '7.10.0' },
     );
 
     const tx = {
-      taskOwner: {
+      taskTag: {
         deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
         createMany: vi.fn().mockRejectedValue(fkViolation),
       },
@@ -35,7 +35,7 @@ describe('TasksService', () => {
     const service = module.get(TasksService);
 
     await expect(
-      service.update('nonexistent-id', { ownerIds: ['some-user-id'] }),
+      service.update('nonexistent-id', { tagIds: ['some-tag-id'] }, 'user-id', 'USER'),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 });

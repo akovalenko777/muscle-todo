@@ -50,8 +50,8 @@ export default function TaskCard({ task }: TaskCardProps) {
         <Typography variant="body2" color="text.secondary" noWrap>
           {task.description}
         </Typography>
-        {task.owners.length > 0 && (
-          <Chip size="small" label={task.owners[0].user.name} sx={{ mt: 1 }} />
+        {task.assigneeId && (
+          <Chip size="small" label={task.assignee?.user.name} sx={{ mt: 1 }} />
         )}
         <IconButton
           color="info"

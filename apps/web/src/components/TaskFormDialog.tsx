@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 import type { AxiosResponse } from 'axios';
 import VoiceTextField from './VoiceTextField';
 import { fetchData } from '../utils/fetchHelper';
-import type { User } from '../store/authStore';
 import type { Tag } from '../types/tag';
 
 interface TaskFormDialogProps {
@@ -19,18 +18,11 @@ interface TaskFormDialogProps {
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
   const [title, setTitle] = useState<string>(task?.title || '');
   const [description, setDescription] = useState<string>(task?.description || '');
-  const [ownerIds, setOwnerIds] = useState<string[]>(() => formatOwners())
   const [tagIds, setTagIds] = useState<string[]>(() => formatTags())
   const [priority, setPriority] = useState<string>(task?.priority || 'NORMAL')
   const tags: Tag[] = use(fetchData('/tags') as Promise<Tag[]>)
-  const users: User[] = use(fetchData('/users') as Promise<User[]>)
 
   const { addTask, updateTask } = useTasksStore();
-
-  function formatOwners(): string[] {
-    if (!task) return []
-    return task.owners.map(owner => owner.userId)
-  }
 
   function formatTags(): string[] {
     if (!task) return []
@@ -39,7 +31,7 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault()
-    const dataToSave = { title, description, ownerIds, tagIds, priority }
+    const dataToSave = { title, description, tagIds, priority }
     
     try {
       if (task) {
@@ -105,19 +97,6 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
                 <MenuItem value="NORMAL">Нормальний</MenuItem>
                 <MenuItem value="LOW">Низький</MenuItem>
                 <MenuItem value="LOWEST">Найнижчий</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl>
-              <InputLabel id="task-owners">Користувач(і)</InputLabel>
-              <Select<string[]>
-                multiple
-                native
-                labelId="task-owners"
-                value={ownerIds}
-                name="ownerIds"
-                onChange={(e) => handleMultySet(e as Event, setOwnerIds)}
-              >
-                {users.map((user: User) => <option key={user.id} value={user.id}>{user.name}</option>)}
               </Select>
             </FormControl>
             <FormControl>

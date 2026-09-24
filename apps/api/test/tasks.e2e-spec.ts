@@ -147,13 +147,12 @@ describe('Tasks (e2e)', () => {
 
     })
 
-    it('returns 404 (not 400) when updating owners on a non-existent task', async () => {
+    it('returns 404 (not 400) when ADMIN updates tagIds on a non-existent task', async () => {
+      const admin = await registerAndLogin(app, { email: 'admin@localhost.com' })
       await request(app.getHttpServer())
-        .patch(`/tasks/invalid_id`)
-        .set('Authorization', `bearer ${accessToken}`)
-        .send({
-          ownerIds: ['some-user-id']
-        })
+        .patch('/tasks/invalid_id')
+        .set('Authorization', `bearer ${admin.accessToken}`)
+        .send({ tagIds: ['some-tag-id'] })
         .expect(404)
     })
 
