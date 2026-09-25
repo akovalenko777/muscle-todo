@@ -17,3 +17,87 @@
     }
   }
 }
+
+.priority-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  position: relative;
+  margin-right: 5px;
+  &::before, &::after {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      position: absolute;
+      border-top: 2px solid;
+      border-left: 2px solid;
+      left: 3px;
+    }
+  &.HIGHEST {
+    &::before,
+    &::after {
+      border-color: #a22727;
+      rotate: 45deg;
+    }
+    &::before {
+      top: 2px;
+    }
+    &::after {
+      top: 9px;
+    }
+  }
+  &.HIGH {
+    &::before,
+    &::after {
+      border-color: #ffa500;
+      rotate: 45deg;
+    }
+    &::before {
+      top: 5px;
+    }
+    &::after {
+      display: none;
+    }
+  }
+  &.NORMAL {
+    &::before,
+    &::after {
+      border-color: #3ccfff;
+    }
+    &::before {
+      rotate: 45deg;
+      top: 5px;
+    }
+    &::after {
+      rotate: -135deg;
+      display: 9px;
+    }
+  }
+  &.LOW {
+    &::before,
+    &::after {
+      border-color: #7cffc2;
+      rotate: -135deg;
+    }
+    &::before {
+      top: 0px;
+    }
+    &::after {
+      display: none;
+    }
+  }
+  &.LOWEST {
+    &::before,
+    &::after {
+      border-color: #00a600;
+      rotate: -135deg;
+    }
+    &::before {
+      top: -3px;
+    }
+    &::after {
+      top: 3px;
+    }
+  }
+}

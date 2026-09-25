@@ -2,12 +2,8 @@ export type TaskStatus = 'PLANNED' | 'IN_PROGRESS' | 'REVIEWED' | 'DONE';
 export type TaskPriority = 'LOWEST' | 'LOW' | 'NORMAL' | 'HIGH' | 'HIGHEST'
 
 export interface TaskAssignee {
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: string;
-  };
+  id: string;
+  name: string;
 }
 
 export interface TaskTag {

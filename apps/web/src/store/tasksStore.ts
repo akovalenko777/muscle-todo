@@ -6,6 +6,7 @@ interface TasksState {
   tasks: Task[];
   loading: boolean;
   taskForEdit: Task | null;
+  taskForView: Task | null;
   taskForDelete: {
     id: string;
     title: string
@@ -16,6 +17,7 @@ interface TasksState {
   updateTask: (task: Task) => void;
   deleteTask: (taskId: string) => void;
   setTaskForEdit: (task: Task | null) => void;
+  setTaskForView: (task: Task | null) => void;
   setTaskForDelete: (taskForDelete: { id: string, title: string } | null) => void;
 }
 
@@ -23,6 +25,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   tasks: [],
   loading: false,
   taskForEdit: null,
+  taskForView: null,
   taskForDelete: null,
   setTasks: (tasks) => set({ tasks }),
 
@@ -56,5 +59,6 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     set({ tasks: updatedTasks })
   },
   setTaskForEdit: (taskForEdit) => set({ taskForEdit }),
+  setTaskForView: (taskForView) => set({ taskForView }),
   setTaskForDelete: (taskForDelete) => set({ taskForDelete })
 }));

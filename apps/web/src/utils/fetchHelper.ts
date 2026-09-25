@@ -1,6 +1,6 @@
 import api from "../api/axios"
 
-let cache = new Map<string, Promise<unknown>>()
+const cache = new Map<string, Promise<unknown>>()
 
 const getData = async (url: string) => {
   const response = await api.get(url)

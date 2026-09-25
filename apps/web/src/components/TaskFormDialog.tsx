@@ -1,5 +1,5 @@
 import { use, useState, type SyntheticEvent } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Select, FormControl, InputLabel, MenuItem } from '@mui/material';
+import { Drawer, DialogTitle, DialogContent, DialogActions, Button, Stack, Select, FormControl, InputLabel, MenuItem } from '@mui/material';
 import api from '../api/axios';
 import { useTasksStore } from '../store/tasksStore';
 import type { Task } from '../types/task';
@@ -16,6 +16,11 @@ interface TaskFormDialogProps {
 }
 
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
+  function formatTags(): string[] {
+    if (!task) return []
+    return task.tags.map(tag => tag.tagId)
+  }
+
   const [title, setTitle] = useState<string>(task?.title || '');
   const [description, setDescription] = useState<string>(task?.description || '');
   const [tagIds, setTagIds] = useState<string[]>(() => formatTags())
@@ -24,18 +29,13 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
 
   const { addTask, updateTask } = useTasksStore();
 
-  function formatTags(): string[] {
-    if (!task) return []
-    return task.tags.map(tag => tag.tagId)
-  }
-
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault()
     const dataToSave = { title, description, tagIds, priority }
-    
+
     try {
       if (task) {
-        const updateResponse: AxiosResponse = await api.patch('/tasks/'+task.id, dataToSave)
+        const updateResponse: AxiosResponse = await api.patch('/tasks/' + task.id, dataToSave)
         updateTask(updateResponse.data)
         toast.success('Задачу змінено')
       } else {
@@ -54,13 +54,22 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
   const handleMultySet = (e: Event, callback: (data: string[]) => void) => {
     const target = e.target as HTMLSelectElement
     const selectedValues = Array.from(target.options)
-    .filter(option => option.selected)
-    .map(option => option.value)
+      .filter(option => option.selected)
+      .map(option => option.value)
     callback(selectedValues)
   }
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Drawer
+      anchor="right"
+      open={open}
+      onClose={onClose}
+      slotProps={{
+        paper: {
+          sx: { width: 'min(50%, 600px)', p: 2 }
+        }
+      }}
+    >
       <DialogTitle>{task ? 'Редагувати задачу' : 'Нова задача'}</DialogTitle>
       <DialogContent>
         <form id="task-form" onSubmit={handleSubmit}>
@@ -112,13 +121,13 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
                 {tags.map((tag: Tag) => <option key={tag.id} value={tag.id}>{tag.text}</option>)}
               </Select>
             </FormControl>
-        </Stack>
+          </Stack>
         </form>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Скасувати</Button>
         <Button variant="contained" type="submit" form="task-form">Зберегти</Button>
       </DialogActions>
-    </Dialog>
+    </Drawer>
   );
 }

@@ -6,6 +6,9 @@ import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TaskWhereInput, TaskWhereUniqueInput } from '../generated/prisma/models.js';
 
 const include = {
+  assignee: {
+    select: { id: true, name: true }
+  },
   tags: {
     include: {
       tag: {
@@ -147,7 +150,8 @@ export class TasksService {
         where: { id, assigneeId: null },
         data: {
           assigneeId: userId
-        }
+        },
+        include
       })
     } catch (error: unknown) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
@@ -164,7 +168,8 @@ export class TasksService {
         where: { id, assigneeId: userId },
         data: {
           assigneeId: null
-        }
+        },
+        include
       })
     } catch (error: unknown) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {

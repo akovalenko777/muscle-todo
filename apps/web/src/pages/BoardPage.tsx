@@ -11,8 +11,9 @@ import TaskFormDialog from '../components/TaskFormDialog';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteDialog from '../components/DeleteDialog';
 import Loader from '../components/Loader';
+import TaskViewDialog from '../components/TaskViewDialog';
 
-const COLUMNS: { status: Task['status']; label: string }[] = [
+export const COLUMNS: { status: Task['status']; label: string }[] = [
   { status: 'PLANNED', label: 'Заплановано' },
   { status: 'IN_PROGRESS', label: 'В процесі' },
   { status: 'REVIEWED', label: 'Перевірено' },
@@ -116,6 +117,7 @@ export default function BoardPage() {
         onClose={handleCloseConfirm}
         onConfirm={handleDeleteConfirm}
       />
+      <TaskViewDialog />
     </>
   );
 }
