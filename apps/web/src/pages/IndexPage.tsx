@@ -5,7 +5,7 @@ import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 export default function IndexPage() {
   return (
     <div className="index-page page-center">
-      <Card variant="outlined">
+      <Card variant="outlined" sx={{ p: 2 }}>
         <CardContent>
           <Typography variant="h5" gutterBottom sx={{ textAlign: 'center' }}>
             Велком до канбан дошки :)

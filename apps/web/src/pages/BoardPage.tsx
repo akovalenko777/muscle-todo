@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useTasksStore } from '../store/tasksStore';
 import api from '../api/axios';
-import type { Task, TaskStatus } from '../types/task';
+import type { TaskStatus } from '../types/task';
 import { toast } from 'react-toastify';
 import type { AxiosResponse } from 'axios';
 import { Box, Button, Stack } from '@mui/material'
@@ -12,13 +12,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteDialog from '../components/DeleteDialog';
 import Loader from '../components/Loader';
 import TaskViewDialog from '../components/TaskViewDialog';
-
-export const COLUMNS: { status: Task['status']; label: string }[] = [
-  { status: 'PLANNED', label: 'Заплановано' },
-  { status: 'IN_PROGRESS', label: 'В процесі' },
-  { status: 'REVIEWED', label: 'Перевірено' },
-  { status: 'DONE', label: 'Виконано' },
-];
+import { getStatusLabel, STATUSES } from '../constants/taskLabels';
 
 export default function BoardPage() {
   const [open, setOpen] = useState<boolean>(false)
@@ -100,12 +94,12 @@ export default function BoardPage() {
       </Suspense>
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
-          {COLUMNS.map((column) => (
+          {STATUSES.map((status) => (
             <Column
-              key={column.status}
-              status={column.status}
-              label={column.label}
-              tasks={tasks.filter((task) => task.status === column.status)}
+              key={status}
+              status={status}
+              label={getStatusLabel(status)}
+              tasks={tasks.filter((task) => task.status === status)}
             />
           ))}
         </Box>

@@ -20,7 +20,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page page-center">
-      <Card sx={{ minWidth:'300px' }}>
+      <Card sx={{ minWidth:'300px', p: 2 }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom sx={{ textAlign: 'center' }}>
             Авторизація
@@ -45,7 +45,7 @@ export default function LoginPage() {
             </Stack>
           </form>
         </CardContent>
-        <CardActions sx={{ justifyContent: 'center', flexDirection: 'column', gap: 2 }}>
+        <CardActions sx={{ justifyContent: 'center', flexDirection: 'column', gap: 2, mt: 2 }}>
           <Button variant="contained" type="submit" form="login-form">Увійти</Button>
           <Button component={Link} to="/register" variant="text">або зареєструйтися</Button>
         </CardActions>

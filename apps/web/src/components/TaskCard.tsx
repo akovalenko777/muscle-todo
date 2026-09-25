@@ -14,17 +14,10 @@ import api from '../api/axios';
 import { toast } from 'react-toastify';
 import { formatDate } from '../utils/functions';
 import { useTaskPermissions } from '../hooks/useTaskPermissions';
+import { getPriorityLabel } from '../constants/taskLabels';
 
 interface TaskCardProps {
   task: Task;
-}
-
-export const priorityLbl: Record<TaskPriority, string> = {
-  HIGHEST: 'Найвищий',
-  HIGH: 'Високий',
-  NORMAL: 'Нормальний',
-  LOW: 'Низький',
-  LOWEST: 'Найнижчий'
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
@@ -96,7 +89,7 @@ export default function TaskCard({ task }: TaskCardProps) {
         }}>
           <Box sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <Tooltip title={priorityLbl[task.priority]}>
+              <Tooltip title={getPriorityLabel(task.priority)}>
                 <span className={`priority-icon ${task.priority}`}></span>
               </Tooltip>
               <Button variant='text' sx={{ fontWeight: '600', p: 0.5, minWidth: 'auto' }} onClick={() => setTaskForView(task)}>

@@ -67,7 +67,7 @@ export default function RegisterPage() {
   }
   return (
     <div className="register-page page-center">
-      <Card sx={{ minWidth: '300px' }}>
+      <Card sx={{ minWidth: '300px', p: 2 }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom sx={{ textAlign: 'center' }}>
             Реєстрація
@@ -111,7 +111,7 @@ export default function RegisterPage() {
             </Stack>
           </form>
         </CardContent>
-        <CardActions sx={{ justifyContent: 'center', flexDirection: 'column', gap: 2 }}>
+        <CardActions sx={{ justifyContent: 'center', flexDirection: 'column', gap: 2, mt: 2 }}>
           <Button variant="contained" type="submit" form="register-form">Зареєструватися</Button>
           <Button component={Link} to="/login" variant="text">або увійти, якщо є акаунт</Button>
         </CardActions>
