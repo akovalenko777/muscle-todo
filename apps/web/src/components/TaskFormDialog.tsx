@@ -1,5 +1,5 @@
 import { use, useState, type SyntheticEvent } from 'react';
-import { Drawer, DialogTitle, DialogContent, DialogActions, Button, Stack, Select, FormControl, InputLabel, MenuItem } from '@mui/material';
+import { Drawer, DialogTitle, DialogContent, DialogActions, Button, Stack, Select, FormControl, InputLabel, MenuItem, Autocomplete, TextField, Chip, Box } from '@mui/material';
 import api from '../api/axios';
 import { useTasksStore } from '../store/tasksStore';
 import type { Task, TaskPriority } from '../types/task';
@@ -23,7 +23,7 @@ interface TasDataForSave {
   description: string;
   priority: TaskPriority;
   tagIds?: string[];
-  assigneeId?: string;
+  assigneeId?: string | null;
 }
 
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
@@ -36,17 +36,18 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
   const [description, setDescription] = useState<string>(task?.description || '');
   const [tagIds, setTagIds] = useState<string[]>(() => formatTags())
   const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'NORMAL')
-  const [assigneeId, setAssigneeId] = useState<string | null>(task?.assigneeId || null)
+  const [assigneeId, setAssigneeId] = useState<string | null>(task?.assigneeId || '')
   const tags: Tag[] = use(fetchData('/tags') as Promise<Tag[]>)
-  const users: User[] = use(fetchData('/users') as Promise<User[]>)
   const { isAdmin, isMine } = useTaskPermissions(task)
+  const users: User[] = isAdmin ? use(fetchData('/users') as Promise<User[]>) : []
+  const userOptions = users.map((user: User) => {return { label: user.name, id: user.id }})
 
   const { addTask, updateTask } = useTasksStore();
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault()
     const dataToSave: TasDataForSave = { title, description, tagIds, priority }
-    if (isAdmin && assigneeId) dataToSave.assigneeId = assigneeId
+    if (isAdmin) dataToSave.assigneeId = assigneeId
     try {
       if (task) {
         const updateResponse: AxiosResponse = await api.patch('/tasks/' + task.id, dataToSave)
@@ -89,7 +90,7 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
       </DialogTitle>
       <DialogContent>
         <form id="task-form" onSubmit={handleSubmit}>
-          <Stack spacing={2}>
+          <Stack spacing={2} sx={{ pt: 2 }}>
             <VoiceTextField
               id="task-title"
               label="Назва задачі"
@@ -105,56 +106,60 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
               value={description}
               required
               multiline
-              minRows={3}
-              maxRows={8}
+              minRows={5}
+              maxRows={10}
               onChange={(value) => setDescription(value)}
             />
             <Stack sx={{ display: 'grid', gridTemplateColumns: isAdmin ? '1fr 1fr' : '100%', gap: 2 }}>
               <FormControl variant="outlined">
-              <InputLabel id="task-prority">Пріоритет</InputLabel>
-              <Select
-                labelId="task-prority"
-                value={priority}
-                name="priority"
-                label="Пріоритет"
-                onChange={(e) => setPriority((e.target as HTMLSelectElement).value as TaskPriority)}
-              >
-                {Object.keys(PRIORITY_LABELS).map((p) => (
-                  <MenuItem value={p} key={p}>
-                    <span className={`priority-icon ${p}`}></span> {getPriorityLabel(p as TaskPriority)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                <InputLabel id="task-prority">Пріоритет</InputLabel>
+                <Select
+                  labelId="task-prority"
+                  value={priority}
+                  name="priority"
+                  label="Пріоритет"
+                  onChange={(e) => setPriority((e.target as HTMLSelectElement).value as TaskPriority)}
+                >
+                  {Object.keys(PRIORITY_LABELS).map((p) => (
+                    <MenuItem value={p} key={p}>
+                      <span className={`priority-icon ${p}`}></span> {getPriorityLabel(p as TaskPriority)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-            { isAdmin && <FormControl variant="outlined">
-              <InputLabel id="task-assignee">Виконавець</InputLabel>
-              <Select
-                labelId="task-assignee"
-                value={assigneeId}
-                name="assigneeId"
-                label="Виконавець"
-                onChange={(e) => setAssigneeId((e.target as HTMLSelectElement).value)}
-              >
-                {users.map((user: User) => <MenuItem value={user.id} key={user.id}>{user.name}</MenuItem>)}
-              </Select>
-            </FormControl> }
+                {isAdmin && <Autocomplete
+                  options={userOptions}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  value={userOptions.find((opt) => opt.id === assigneeId) ?? null}
+                  onChange={(_, selectedUser) => setAssigneeId(selectedUser?.id || null)}
+                  renderOption={(props, option) => {
+                    const {id, key, ...optionProps} = props
+                    return <Box component='li' key={id} {...optionProps}>{option.label}</Box>
+                  }}
+                  renderInput={(params) => <TextField {...params} label="Виконавець" variant="outlined" />}
+                />}
             </Stack>
-            
-            <FormControl>
-              <InputLabel id="task-tags">Теги</InputLabel>
-              <Select<string[]>
-                multiple
-                native
-                labelId="task-tags"
-                value={tagIds}
-                name="tagIds"
-                label="Теги"
-                onChange={(e) => handleMultySet(e as Event, setTagIds)}
-              >
-                {tags.map((tag: Tag) => <option key={tag.id} value={tag.id}>{tag.text}</option>)}
-              </Select>
-            </FormControl>
+
+            <Autocomplete
+              multiple
+              options={tags}
+              getOptionLabel={(tag) => tag.text}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              value={tags.filter((tag) => tagIds.includes(tag.id))}
+              onChange={(_, selectedTags) => setTagIds(selectedTags.map((tag) => tag.id))}
+              renderValue={(selectedTags, getTagProps) =>
+                selectedTags.map((tag, index) => (
+                  <Chip
+                    {...getTagProps({ index })}
+                    key={tag.id}
+                    label={tag.text}
+                    sx={{ backgroundColor: tag.color }}
+                  />
+                ))
+              }
+              renderInput={(params) => <TextField {...params} label="Теги" variant="outlined" />}
+            />
           </Stack>
         </form>
       </DialogContent>
