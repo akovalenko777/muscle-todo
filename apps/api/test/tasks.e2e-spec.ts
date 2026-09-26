@@ -136,7 +136,7 @@ describe('Tasks (e2e)', () => {
           expect(response.body.title).toBe('Test task UPD!')
           expect(response.body.status).toBe('IN_PROGRESS')
         })
-      
+
       await request(app.getHttpServer())
         .patch(`/tasks/${createTaskResponse.body.id}`)
         .set('Authorization', `bearer ${accessToken}`)
@@ -179,5 +179,19 @@ describe('Tasks (e2e)', () => {
         .expect(404)
     })
 
+    it('sanitizes malicious HTML in description', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description: '<p>Safe text</p><script>alert("xss")</script><img src=x onerror="alert(1)">'
+        })
+        .expect(201)
+
+      expect(response.body.description).not.toContain('<script>')
+      expect(response.body.description).not.toContain('onerror')
+      expect(response.body.description).toContain('Safe text')
+    })
   })
 })

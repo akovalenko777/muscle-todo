@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TaskWhereInput, TaskWhereUniqueInput } from '../generated/prisma/models.js';
+import { sanitizeDescription } from './helper/sanitizeDescription.js';
 
 const include = {
   assignee: {
@@ -53,10 +54,11 @@ export class TasksService {
   }
 
   async create(dto: CreateTaskDto, userId: string, role: UserRole) {
-    const { assigneeId, tagIds, ...data } = dto;
+    const { assigneeId, tagIds, description, ...data } = dto;
     try {
       const dataForCreate: Prisma.TaskCreateInput = {
         ...data,
+        description: sanitizeDescription(description),
         tags: tagIds
           ? { create: tagIds.map((tagId) => ({ tag: { connect: { id: tagId } } })) }
           : undefined
@@ -80,7 +82,7 @@ export class TasksService {
   }
 
   async update(id: string, dto: UpdateTaskDto, userId: string, role: UserRole) {
-    const { tagIds, assigneeId, ...data } = dto;
+    const { tagIds, assigneeId, description, ...data } = dto;
     try {
       if (role === 'USER') {
         const task = await this.findOne(id, userId, role)
@@ -96,6 +98,10 @@ export class TasksService {
 
       const dataForUpdate: Prisma.TaskUpdateInput = {
         ...data
+      }
+
+      if (description !== undefined){
+        dataForUpdate.description = sanitizeDescription(description)
       }
 
       if (role === 'ADMIN' && assigneeId !== undefined) {

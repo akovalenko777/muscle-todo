@@ -97,12 +97,12 @@ export default function TaskCard({ task }: TaskCardProps) {
               </Button>
             </Box>
 
-            <Typography variant="body2" color="text.secondary" noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '280px' }}>
+            {/* <Typography variant="body2" color="text.secondary" noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '280px' }}>
               {task.description}
-            </Typography>
+            </Typography> */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
               {task.assigneeId
-                ? <Chip size="small" label={task.assignee?.name} sx={{ mt: 1 }} />
+                ? <Chip size="small" label={task.assignee?.name} />
                 : <Box></Box>
               }
               <Typography variant='body2' sx={{ fontSize: '.8rem', color: 'text.secondary' }}>{formatDate(task.createdAt)}</Typography>
