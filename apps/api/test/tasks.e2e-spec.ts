@@ -193,5 +193,82 @@ describe('Tasks (e2e)', () => {
       expect(response.body.description).not.toContain('onerror')
       expect(response.body.description).toContain('Safe text')
     })
+
+    it('check allowed HTML tags with attributes', async () => {
+      const description = '<p style="text-align:center">x</p><h2 style="text-align:right">x</h2><p><u>x</u></p><p><span style="color:#ff0000">x</span></p>'
+      const response = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description
+        })
+        .expect(201)
+      expect(response.body.description).toBe(description)
+    })
+
+    it('disallow any links in description', async () => {
+      const description = '<p style="text-align:center">Some text with <a href="https://somesite.com">link</a></p>'
+      const response = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description
+        })
+        .expect(201)
+      expect(response.body.description).not.toContain('<a href=')
+    })
+
+    it('remove suspicious styles from description', async () => {
+      const description = '<p style="color:#ff0000;background:url(javascript:alert(1))">x</p>'
+      const response = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description
+        })
+        .expect(201)
+      expect(response.body.description).not.toContain('background')
+      expect(response.body.description).not.toContain('alert')
+      expect(response.body.description).toContain('color:')
+    })
+
+    it.each(['<p></p>', '<p><br /></p>', '<pre></pre>', '<hr>'])('unable to create task with description: %s', async (description) => {
+      await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description
+        })
+        .expect(400)
+    })
+
+    it('unable to update task with empty description', async () => {
+      const description = 'test'
+      const responseCreate = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description
+        })
+        .expect(201)
+
+      await request(app.getHttpServer())
+        .patch('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          description: '<p></p>'
+        })
+        .expect(400)
+      const after = await request(app.getHttpServer())
+        .get('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+      expect(after.body.description).toBe('test')
+    })
   })
 })
