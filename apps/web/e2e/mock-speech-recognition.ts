@@ -14,7 +14,7 @@ export async function mockSpeechRecognition(page: Page, dictatedText: string) {
         setTimeout(()=>{
           const results = [[{ transcript: text, confidence: 0.9, isFinal: true }] as unknown as SpeechRecognitionResult];
           this.onresult?.({ results } as unknown as SpeechRecognitionEvent)
-        }, 200)
+        }, 0)
       }
 
       stop() {

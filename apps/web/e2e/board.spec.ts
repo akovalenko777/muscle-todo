@@ -3,7 +3,9 @@ import { test, expect } from './fixtures';
 test('create a new task', async ({ authenticatedPage: page }) => {
   await page.getByText('Додати задачу').click()
   await page.getByLabel('Назва задачі').fill('Test task title')
-  await page.getByLabel('Детальний опис').fill('Test task description')
+  // await page.getByLabel('Детальний опис').fill('Test task description')
+  const editor = page.locator('.ProseMirror')
+  await editor.fill('Test task description')
   await page.getByText('Зберегти').click()
   expect(page.locator('.MuiPaper-root:nth-child(1)', {
     has: page.getByText('Test task title')

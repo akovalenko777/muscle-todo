@@ -16,6 +16,7 @@ import { getStatusLabel, STATUSES } from '../constants/taskLabels';
 
 export default function BoardPage() {
   const [open, setOpen] = useState<boolean>(false)
+  const [session, setSession] = useState<number>(0)
   const { tasks, taskForEdit, taskForDelete, setTasks, updateTaskStatus, setTaskForEdit, setTaskForDelete, deleteTask } = useTasksStore();
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -30,6 +31,7 @@ export default function BoardPage() {
   }
 
   const handleAddTask = () => {
+    setSession(session + 1)
     setTaskForEdit(null)
     setOpen(true)
   }
@@ -90,7 +92,7 @@ export default function BoardPage() {
         <Button variant="contained" color="success" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
       </Stack>
       <Suspense fallback={<Loader />}>
-        <TaskFormDialog key={taskForEdit?.id ?? 'new'} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
+        <TaskFormDialog key={`${taskForEdit?.id ?? 'new'}-${session}`} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
       </Suspense>
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Box sx={{ display: 'flex', gap: 2, p: 2 }}>

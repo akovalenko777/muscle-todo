@@ -9,7 +9,8 @@ import api from "../api/axios"
 import { type AxiosResponse } from "axios"
 import { toast } from "react-toastify"
 import { getPriorityLabel, getStatusLabel } from "../constants/taskLabels";
-
+import { RichTextReadOnly } from "mui-tiptap";
+import { editorExtensions } from "../utils/editorExtensions";
 
 export default function TaskViewDialog() {
   const { taskForView: task, setTaskForView, setTaskForEdit, updateTask } = useTasksStore()
@@ -51,8 +52,8 @@ export default function TaskViewDialog() {
       </DialogTitle>
       <DialogContent>
         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 200px', mt: 2, height: 'calc(100% - 16px)' }}>
-          <Box>
-            <Typography>{task.description}</Typography>
+          <Box sx={{ pr: 2 }}>
+            <RichTextReadOnly content={task.description} extensions={editorExtensions} />
           </Box>
           <Box sx={{ borderLeft: '1px solid', borderColor: 'divider', fontSize: '.8rem', pl: 2 }}>
             <Stack sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

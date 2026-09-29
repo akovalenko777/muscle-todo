@@ -10,11 +10,11 @@ interface VoiceTextFieldProps extends Omit<TextFieldProps, 'value' | 'onChange'>
 }
 
 export default function VoiceTextField({ value, onChange, ...textFieldProps }: VoiceTextFieldProps) {
-  const { isListening, transcript, startListening, stopListening, isSupported } = useSpeechToText();
+  const { isListening, transcript, startListening, stopListening, isSupported } = useSpeechToText()
 
   useEffect(() => {
     if(transcript !== '') onChange(transcript)
-  }, [transcript, onChange]);
+  }, [transcript, onChange])
 
   return (
     <TextField
@@ -26,11 +26,11 @@ export default function VoiceTextField({ value, onChange, ...textFieldProps }: V
           endAdornment: isSupported ? (
             <InputAdornment position="end">
               <IconButton
-                onMouseDown={() => startListening()}
-                onMouseUp={() => stopListening()}
-                onMouseLeave={() => { if(isListening) stopListening()}}
-                onTouchStart={() => startListening()}
-                onTouchEnd={() => stopListening()}
+                onPointerDown={() => startListening()}
+                onPointerUp={() => stopListening()}
+                onPointerCancel={() => stopListening()}
+                onPointerLeave={() => { if (isListening) stopListening() }}
+                style={{touchAction: 'none', userSelect: 'none'}}
                 edge="end"
               >
                 {isListening ? <MicOffIcon /> : <MicIcon />}

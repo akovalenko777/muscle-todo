@@ -4,13 +4,16 @@ import api from '../api/axios';
 import { useTasksStore } from '../store/tasksStore';
 import type { Task, TaskPriority } from '../types/task';
 import { toast } from 'react-toastify';
-import type { AxiosResponse } from 'axios';
+import { isAxiosError, type AxiosResponse } from 'axios';
 import VoiceTextField from './VoiceTextField';
 import { fetchData } from '../utils/fetchHelper';
 import type { Tag } from '../types/tag';
 import { useTaskPermissions } from '../hooks/useTaskPermissions';
 import type { User } from '../store/authStore';
 import { getPriorityLabel, PRIORITY_LABELS } from '../constants/taskLabels';
+import RichTextEditor from './RichTextEditor';
+import { useEditor } from '@tiptap/react'
+import { editorExtensions } from '../utils/editorExtensions';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -28,51 +31,71 @@ interface TasDataForSave {
 
 export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogProps) {
   function formatTags(): string[] {
-    if (!task) return []
-    return task.tags.map(tag => tag.tagId)
+    if (!current) return []
+    return current.tags.map(tag => tag.tagId)
   }
-
-  const [title, setTitle] = useState<string>(task?.title || '');
-  const [description, setDescription] = useState<string>(task?.description || '');
+  const [current, setCurrent] = useState<Task | null>(task)
+  const [title, setTitle] = useState<string>(current?.title || '');
   const [tagIds, setTagIds] = useState<string[]>(() => formatTags())
-  const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'NORMAL')
-  const [assigneeId, setAssigneeId] = useState<string | null>(task?.assigneeId || '')
+  const [priority, setPriority] = useState<TaskPriority>(current?.priority || 'NORMAL')
+  const [assigneeId, setAssigneeId] = useState<string | null>(current?.assigneeId || null)
   const tags: Tag[] = use(fetchData('/tags') as Promise<Tag[]>)
-  const { isAdmin, isMine } = useTaskPermissions(task)
+  const { isAdmin } = useTaskPermissions(task)
   const users: User[] = isAdmin ? use(fetchData('/users') as Promise<User[]>) : []
-  const userOptions = users.map((user: User) => {return { label: user.name, id: user.id }})
+  const userOptions = users.map((user: User) => { return { label: user.name, id: user.id } })
+  const [isSaving, setIsSaving] = useState<boolean>(false)
 
-  const { addTask, updateTask } = useTasksStore();
+  const { addTask, updateTask, setTasks } = useTasksStore();
+
+  const editor = useEditor({
+    extensions: editorExtensions,
+    content: current?.description ?? '',
+    shouldRerenderOnTransaction: true,
+  })
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault()
-    const dataToSave: TasDataForSave = { title, description, tagIds, priority }
+    const submitter = (event.nativeEvent as SubmitEvent).submitter
+    const isApply = submitter?.getAttribute('value') === 'apply'
+
+    if (!editor || editor.getText().trim() === '') {
+      toast.info('Заповніть опис задачі')
+      return
+    }
+    const dataToSave: TasDataForSave = { title, tagIds, priority, description: editor?.getHTML() ?? '' }
     if (isAdmin) dataToSave.assigneeId = assigneeId
     try {
-      if (task) {
-        const updateResponse: AxiosResponse = await api.patch('/tasks/' + task.id, dataToSave)
+      setIsSaving(true)
+      let savedTask = null
+      if (current) {
+        const updateResponse: AxiosResponse = await api.patch('/tasks/' + current.id, dataToSave)
+        savedTask = updateResponse.data
         updateTask(updateResponse.data)
         toast.success('Задачу змінено')
       } else {
         const createResponse: AxiosResponse = await api.post('/tasks', dataToSave)
+        savedTask = createResponse.data
         addTask(createResponse.data)
         toast.success('Задачу додано')
       }
-      setTitle('')
-      setDescription('')
-      onClose();
-    } catch {
-      toast.error('Не вдалося зберегти задачу');
+      if (isApply) {
+        setCurrent(savedTask)
+      } else {
+        onClose()
+      }
+    } catch (error) {
+      if (isAxiosError(error) && (error.response?.status === 404 || error.response?.status === 403)) {
+        toast.error('Задача змінилась або більше вам не належить')
+        onClose()
+        const tasksResponse = await api.get('/tasks')
+        setTasks(tasksResponse.data)
+      } else {
+        toast.error('Не вдалося зберегти задачу')
+      }
+    } finally {
+      setIsSaving(false)
     }
   };
-
-  const handleMultySet = (e: Event, callback: (data: string[]) => void) => {
-    const target = e.target as HTMLSelectElement
-    const selectedValues = Array.from(target.options)
-      .filter(option => option.selected)
-      .map(option => option.value)
-    callback(selectedValues)
-  }
 
   return (
     <Drawer
@@ -86,7 +109,7 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
       }}
     >
       <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider', p: 1, pl: 3, pb: 1.5, backgroundColor: 'background.default' }}>
-        {task ? 'Редагувати задачу' : 'Нова задача'}
+        {current ? 'Редагувати задачу' : 'Нова задача'}
       </DialogTitle>
       <DialogContent>
         <form id="task-form" onSubmit={handleSubmit}>
@@ -99,17 +122,7 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
               required
               onChange={(value) => setTitle(value)}
             />
-            <VoiceTextField
-              id="task-descr"
-              label="Детальний опис"
-              variant="standard"
-              value={description}
-              required
-              multiline
-              minRows={5}
-              maxRows={10}
-              onChange={(value) => setDescription(value)}
-            />
+            <RichTextEditor editor={editor} />
             <Stack sx={{ display: 'grid', gridTemplateColumns: isAdmin ? '1fr 1fr' : '100%', gap: 2 }}>
               <FormControl variant="outlined">
                 <InputLabel id="task-prority">Пріоритет</InputLabel>
@@ -128,17 +141,18 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
                 </Select>
               </FormControl>
 
-                {isAdmin && <Autocomplete
-                  options={userOptions}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  value={userOptions.find((opt) => opt.id === assigneeId) ?? null}
-                  onChange={(_, selectedUser) => setAssigneeId(selectedUser?.id || null)}
-                  renderOption={(props, option) => {
-                    const {id, key, ...optionProps} = props
-                    return <Box component='li' key={id} {...optionProps}>{option.label}</Box>
-                  }}
-                  renderInput={(params) => <TextField {...params} label="Виконавець" variant="outlined" />}
-                />}
+              {isAdmin && <Autocomplete
+                options={userOptions}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                value={userOptions.find((opt) => opt.id === assigneeId) ?? null}
+                onChange={(_, selectedUser) => setAssigneeId(selectedUser?.id || null)}
+                renderOption={(props, option) => {
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  const { id, key, ...optionProps } = props
+                  return <Box component='li' key={id} {...optionProps}>{option.label}</Box>
+                }}
+                renderInput={(params) => <TextField {...params} label="Виконавець" variant="outlined" />}
+              />}
             </Stack>
 
             <Autocomplete
@@ -165,7 +179,8 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
       </DialogContent>
       <DialogActions sx={{ borderTop: '1px solid', borderColor: 'divider', p: 2, pr: 3, backgroundColor: 'background.default', gap: 2 }}>
         <Button onClick={onClose}>Скасувати</Button>
-        <Button variant="contained" type="submit" form="task-form" color="success">Зберегти</Button>
+        <Button variant="contained" type="submit" form="task-form" value="save" color="success" disabled={isSaving}>Зберегти</Button>
+        <Button variant="contained" type="submit" form="task-form" value="apply" color="primary" disabled={isSaving}>Застосувати</Button>
       </DialogActions>
     </Drawer>
   );

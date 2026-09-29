@@ -7,36 +7,43 @@ declare global {
   }
 }
 
-export function useSpeechToText() {
-  const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+interface HookParams {
+  onEnd?: (s: string) => void
+}
 
-  const isSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+const capitalizeFirstLetter = (text: string): string => {
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : text
+}
 
-  const capitalizeFirstLetter = (text: string): string => {
-    return text ? text.charAt(0).toUpperCase() + text.slice(1) : text
-  }
-
-  const startListening = useCallback(() => {
+export function useSpeechToText({ onEnd }: HookParams = {}) {
+  const [isListening, setIsListening] = useState(false)
+  const [transcript, setTranscript] = useState('')
+  const recognitionRef = useRef<SpeechRecognition | null>(null)
+  const onEndRef = useRef(onEnd)
+  const isSupported = !!(window.SpeechRecognition || window.webkitSpeechRecognition)
+  const startListening = useCallback((isCapitalize = true) => {
     if (!isSupported || isListening) return;
 
     const SpeechRecognitionCtor =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+      window.SpeechRecognition || window.webkitSpeechRecognition
 
-    if (!SpeechRecognitionCtor) return;
+    if (!SpeechRecognitionCtor) return
 
-    const recognition = new SpeechRecognitionCtor() as SpeechRecognition;
-    recognition.continuous = true;
-    recognition.lang = 'uk-UA';
-    recognition.interimResults = true;
+    const recognition = new SpeechRecognitionCtor() as SpeechRecognition
+    recognition.continuous = true
+    recognition.lang = 'uk-UA'
+    recognition.interimResults = true
+    let sessionText = ''
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       const finalArr = []
       for (let i = 0; i < event.results.length; i++) {
         finalArr.push(event.results[i][0].transcript.trim())
       }
-      setTranscript(capitalizeFirstLetter(finalArr.join(' ')))
+      sessionText = isCapitalize
+        ? capitalizeFirstLetter(finalArr.join(' '))
+        : finalArr.join(' ')
+      setTranscript(sessionText)
     }
 
     recognition.onerror = (event) => {
@@ -45,18 +52,18 @@ export function useSpeechToText() {
     }
 
     recognition.onend = () => {
-      setIsListening(false);
+      setIsListening(false)
+      onEndRef.current?.(sessionText)
     };
 
-    recognitionRef.current = recognition;
-    setIsListening(true);
-    recognition.start();
-  }, [isSupported, isListening]);
+    recognitionRef.current = recognition
+    setIsListening(true)
+    recognition.start()
+  }, [isSupported, isListening])
 
   const stopListening = useCallback(() => {
-    recognitionRef.current?.stop();
-    setIsListening(false);
-  }, []);
+    recognitionRef.current?.stop()
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -64,5 +71,7 @@ export function useSpeechToText() {
     }
   }, [])
 
-  return { isListening, transcript, startListening, stopListening, isSupported, setTranscript };
+  useEffect(() => { onEndRef.current = onEnd })
+
+  return { isListening, transcript, startListening, stopListening, isSupported, setTranscript }
 }

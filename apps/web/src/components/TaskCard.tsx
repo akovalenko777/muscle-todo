@@ -1,7 +1,7 @@
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent, Typography, Chip, IconButton, Box, Button, Tooltip } from '@mui/material';
-import type { Task, TaskPriority, TaskTag } from '../types/task';
+import type { Task, TaskTag } from '../types/task';
 import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete';
 import LinkIcon from '@mui/icons-material/Link';
@@ -88,18 +88,14 @@ export default function TaskCard({ task }: TaskCardProps) {
           gridTemplateColumns: '1fr 30px'
         }}>
           <Box sx={{ p: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', mb: 2 }}>
               <Tooltip title={getPriorityLabel(task.priority)}>
                 <span className={`priority-icon ${task.priority}`}></span>
               </Tooltip>
-              <Button variant='text' sx={{ fontWeight: '600', p: 0.5, minWidth: 'auto' }} onClick={() => setTaskForView(task)}>
+              <Button variant='text' sx={{ fontWeight: '600', p: 0.2, minWidth: 'auto', textAlign: 'left', lineHeight: 1.2 }} onClick={() => setTaskForView(task)}>
                 {task.title}
               </Button>
             </Box>
-
-            {/* <Typography variant="body2" color="text.secondary" noWrap sx={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '280px' }}>
-              {task.description}
-            </Typography> */}
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
               {task.assigneeId
                 ? <Chip size="small" label={task.assignee?.name} />
