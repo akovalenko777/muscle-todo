@@ -5,6 +5,7 @@ import { UpdateUserDto } from "./dto/update-user.dto.js";
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from "../auth/decorators/public.decorator.js";
 import { CurrentUser } from "../auth/decorators/current-user.decorator.js";
+import { Roles } from "../auth/decorators/roles.decorator.js";
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -13,6 +14,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService){}
 
   @Get()
+  @Roles('ADMIN')
   findAll(){
     return this.usersService.findAll()
   }
@@ -23,6 +25,7 @@ export class UsersController {
   }
 
   @Get(':id')
+  @Roles('ADMIN')
   findOne(@Param('id') id: string){
     return this.usersService.findOne(id)
   }
@@ -33,12 +36,19 @@ export class UsersController {
     return this.usersService.create(dto)
   }
 
+  @Patch('me')
+  updateMe(@CurrentUser() user: { userId: string }, @Body() dto: UpdateUserDto){
+    return this.usersService.update(user.userId, dto)
+  }
+
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateUserDto){
-    return this.usersService.update(id, dto)
+  @Roles('ADMIN')
+  update(@CurrentUser() user: { userId: string }, @Param('id') id: string, @Body() dto: UpdateUserDto){
+    return this.usersService.updateByAdmin(id, dto, user.userId)
   }
 
   @Delete(':id')
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string){
     return this.usersService.remove(id)

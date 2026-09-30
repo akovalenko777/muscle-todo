@@ -71,14 +71,14 @@ describe('Users (e2e)', () => {
     })
 
     it('get users list', async () => {
-      const { status, body } =  await request(app.getHttpServer())
+      const { status, body } = await request(app.getHttpServer())
         .get('/users')
         .set('Authorization', `bearer ${accessToken}`)
-        expect(status).toBe(200)
-        expect(body).toStrictEqual(expect.arrayContaining([userShape]))
-        body.forEach((user: unknown) => {
-          expect(user).not.toHaveProperty('passwordHash')
-        })
+      expect(status).toBe(200)
+      expect(body).toStrictEqual(expect.arrayContaining([userShape]))
+      body.forEach((user: unknown) => {
+        expect(user).not.toHaveProperty('passwordHash')
+      })
     })
 
     it('update user name', async () => {
@@ -93,8 +93,8 @@ describe('Users (e2e)', () => {
         .send({
           name: newName
         })
-        expect(status).toBe(200)
-        expect(body.name).toBe(newName)
+      expect(status).toBe(200)
+      expect(body.name).toBe(newName)
     })
 
     it('update user password', async () => {
@@ -120,6 +120,51 @@ describe('Users (e2e)', () => {
         .delete(`/users/${userResponse.body.id}`)
         .set('Authorization', `bearer ${accessToken}`)
         .expect(204)
+    })
+
+    it('regular user cannot list all users', async () => {
+      const { accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com' })
+      await request(app.getHttpServer())
+        .get('/users')
+        .set('Authorization', `bearer ${userToken}`)
+        .expect(403)
+    })
+
+    it('regular user cannot get user info', async () => {
+      const { userId, accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com' })
+      await request(app.getHttpServer())
+        .get('/users/'+userId)
+        .set('Authorization', `bearer ${userToken}`)
+        .expect(403)
+    })
+
+    it('regular user cannot update profile by ID parameter', async () => {
+      const { userId, accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com' })
+      await request(app.getHttpServer())
+        .patch('/users/'+userId)
+        .set('Authorization', `bearer ${userToken}`)
+        .send({ name: 'New Name' })
+        .expect(403)
+    })
+
+    it('regular user cannot delete profile by ID parameter', async () => {
+      const { userId, accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com' })
+      await request(app.getHttpServer())
+        .delete('/users/'+userId)
+        .set('Authorization', `bearer ${userToken}`)
+        .expect(403)
+    })
+
+    it('regular user can update profile by /me endpoint', async () => {
+      const { accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com' })
+      await request(app.getHttpServer())
+        .patch('/users/me')
+        .set('Authorization', `bearer ${userToken}`)
+        .send({ name: 'New Name' })
+        .expect(200)
+        .then((resp) => {
+          expect(resp.body.name).toBe('New Name')
+        })
     })
 
   })

@@ -50,11 +50,31 @@ export class UsersService {
   }
 
   async update(id: string, dto: UpdateUserDto) {
-    const { ...data } = dto
+    const { role: _role, ...data } = dto
     try {
       return await this.prisma.user.update({
         where: { id },
         data: { ...data },
+        omit
+      })
+
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+        throw new NotFoundException(`User with ${id} not found for update`)
+      }
+      throw error
+    }
+  }
+
+  async updateByAdmin(id: string, dto: UpdateUserDto, userId: string) {
+    const { role, ...data } = dto
+    if (id === userId && role !== undefined) {
+      throw new BadRequestException('You cannot change your own role')
+    }
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: { ...data, role },
         omit
       })
 
