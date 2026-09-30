@@ -43,7 +43,7 @@ describe('Users (e2e)', () => {
     await prisma.user.deleteMany()
     await prisma.task.deleteMany()
 
-    const auth = await registerAndLogin(app)
+    const auth = await registerAndLogin(app, { email: 'admin@localhost.com' })
     accessToken = auth.accessToken
   })
 

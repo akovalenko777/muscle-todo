@@ -12,7 +12,7 @@ export async function registerAndLogin(
     ...overrides
   }
 
-  await request(app.getHttpServer())
+  const userResponse = await request(app.getHttpServer())
     .post('/users')
     .send(user)
     .expect(201)
@@ -26,6 +26,7 @@ export async function registerAndLogin(
     .expect(200)
 
   return {
+    userId: userResponse.body.id,
     user,
     accessToken: loginResponse.body.accessToken as string
   }
