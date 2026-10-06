@@ -36,7 +36,7 @@ export default function UserPage() {
       }
     }
     fetchUsers()
-  }, [])
+  }, [isAdmin])
 
   const handleOpenAdd = () => {
     setOpenAdd(true)
@@ -125,7 +125,7 @@ export default function UserPage() {
         />
       </Paper>
       <UserFormDialog
-        key={`${userForEdit?.id ?? 'new'}-${count.current}`}
+        key={`${userForEdit?.id ?? 'new'}-${count}`}
         user={userForEdit}
         open={openAdd || userForEdit!==null}
         onClose={handleAddClose}

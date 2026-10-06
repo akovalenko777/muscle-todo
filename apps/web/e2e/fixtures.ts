@@ -133,7 +133,8 @@ export const test = base.extend<{
     await authenticatedPageHelper({ page, user: testUser, request, speechRecognitionText }, use)
   },
 
-  authenticatedAdminPage: async ({ page, testAdmin, request, speechRecognitionText, testUsers }, use) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  authenticatedAdminPage: async ({ page, testAdmin, request, speechRecognitionText, testUsers: _testUsers }, use) => {
     await authenticatedPageHelper({ page, user: testAdmin, request, speechRecognitionText }, use)
   },
 
