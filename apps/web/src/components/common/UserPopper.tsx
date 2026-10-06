@@ -8,29 +8,34 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
-import { useAuthStore } from '../../store/authStore';
+import { isAdminSelector, useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 export default function UserPopper(){
-  const [anchorEl, setAnchorEl] = useState<Element | null>(null);
-  const anchorRef = useRef<HTMLDivElement>(null);
-  const logout = useAuthStore(store => store.logout)
+  const [anchorEl, setAnchorEl] = useState<Element | null>(null)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const logout = useAuthStore(state => state.logout)
+  const isAdmin = useAuthStore(isAdminSelector)
   const navigate = useNavigate()
 
   const handleClick = (event: SyntheticEvent) => {
-    setAnchorEl(anchorEl ? null : event?.currentTarget as Element);
+    setAnchorEl(anchorEl ? null : event?.currentTarget as Element)
   };
 
   const handleClose = (event: Event) => {
     if (
       anchorRef.current &&
       anchorRef.current.contains(event.target as HTMLElement)
-    ) {
-      return;
-    }
+    ) return
 
-    setAnchorEl(null);
+    setAnchorEl(null)
   };
+
+  const handleMenuClick = (path: string) => {
+    setAnchorEl(null)
+    navigate(path)
+  }
+
   return (
     <>
       <ButtonGroup
@@ -69,7 +74,8 @@ export default function UserPopper(){
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                    <MenuItem onClick={() => navigate('/tags')}>Теги</MenuItem>
+                    <MenuItem onClick={() => handleMenuClick('/tags')}>Теги</MenuItem>
+                    { isAdmin && <MenuItem onClick={() => handleMenuClick('/users')}>Користувачі</MenuItem>}
                     <MenuItem onClick={logout}>Вийти</MenuItem>
                 </MenuList>
               </ClickAwayListener>

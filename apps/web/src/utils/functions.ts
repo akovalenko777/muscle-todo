@@ -5,3 +5,12 @@ export const formatDate = (dateStr: string, showTime = true, sep = '/'): string 
   if (showTime) dateResult += ` ${addZero(date.getHours())}:${addZero(date.getMinutes())}`
   return dateResult
 }
+
+export const generatePassword = (len = 10) => {
+  const availChars = 'abcdefghijkmnopqrstuvwxyzABCDEFGHIJKMNPQRSTUVWXYZ123456789!@#$%^&*()_-'
+  let pass = ''
+  for(let i=0;i<len;i++){
+    pass += availChars.charAt(Math.floor(Math.random() * availChars.length))
+  }
+  return pass
+}

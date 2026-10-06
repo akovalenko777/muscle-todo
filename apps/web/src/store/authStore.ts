@@ -1,12 +1,5 @@
 import { create } from 'zustand';
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: 'USER' | 'ADMIN';
-}
-
+import type { User } from '../types/user';
 interface AuthState {
   authenticated: boolean
   accessToken: string | null;
@@ -32,3 +25,5 @@ export const useAuthStore = create<AuthState>((set) => ({
   updateAccessToken: (accessToken) => set({ accessToken }),
   updateUser: (user) => set({ user })
 }));
+
+export const isAdminSelector = (state: AuthState) => state.user?.role === 'ADMIN'

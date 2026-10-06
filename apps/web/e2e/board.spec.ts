@@ -3,7 +3,6 @@ import { test, expect } from './fixtures';
 test('create a new task', async ({ authenticatedPage: page }) => {
   await page.getByText('Додати задачу').click()
   await page.getByLabel('Назва задачі').fill('Test task title')
-  // await page.getByLabel('Детальний опис').fill('Test task description')
   const editor = page.locator('.ProseMirror')
   await editor.fill('Test task description')
   await page.getByText('Зберегти').click()
@@ -12,7 +11,22 @@ test('create a new task', async ({ authenticatedPage: page }) => {
   }))
 })
 
-test('drags a task from Planned to In Progress', async ({ authenticatedPage: page, testTask: task }) => {
+test('drags a task from Planned to In Progress', async ({ authenticatedPage: page }) => {
+  const task = {
+    title: `task-${test.info().testId}-${new Date().getTime()}`,
+    description: 'Test task description'
+  }
+  //create new task
+  await page.getByText('Додати задачу').click()
+  await page.getByLabel('Назва задачі').fill(task.title)
+  const editor = page.locator('.ProseMirror')
+  await editor.fill(task.description)
+  await page.getByText('Зберегти').click()
+  expect(page.locator('.MuiPaper-root:nth-child(1)', {
+    has: page.getByText(task.title)
+  }))
+
+
   const sourceCard = page.getByText(task.title)
   const targetColumn = page.getByText('В процесі')
 

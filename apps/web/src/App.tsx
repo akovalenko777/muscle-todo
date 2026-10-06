@@ -5,6 +5,7 @@ import BoardPage from "./pages/BoardPage"
 import IndexPage from "./pages/IndexPage"
 import RegisterPage from "./pages/RegisterPage"
 import TagsPage from "./pages/TagsPage"
+import UserPage from "./pages/UsersPage"
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/board" element={<BoardPage />} />
         <Route path="/tags" element={<TagsPage />} />
+        <Route path="/users" element={<UserPage />} />
       </Route>
     </Routes>
   )

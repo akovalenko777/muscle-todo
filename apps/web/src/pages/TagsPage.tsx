@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useAuthStore } from "../store/authStore";
+import { isAdminSelector, useAuthStore } from "../store/authStore";
 import { Stack, Chip, IconButton, Button, Paper } from "@mui/material";
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -24,8 +24,7 @@ export default function TagsPage() {
   const [tagForEdit, setTagForEdit] = useState<Tag | null>(null);
   const tagIdForDelete = useRef<string>('');
   const [deleteText, setDeleteText] = useState<string>('')
-  const user = useAuthStore((state) => state.user);
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = useAuthStore(isAdminSelector)
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -91,12 +90,10 @@ export default function TagsPage() {
   const updateTagsList = (tag: Tag) => {
     //INFO: avoid refetch tags list with request, modify tags list in state
     const existTag = tags.findIndex((el) => el.id === tag.id)
-    if (existTag === -1) {
-      setTags([...tags, tag])
-    } else {
-      const updatedTags = tags.map((el) => el.id === tag.id ? tag : el)
-      setTags(updatedTags)
-    }
+    const updatedTags = existTag === -1
+    ? [...tags, tag]
+    : tags.map((el) => el.id === tag.id ? tag : el)
+    setTags(updatedTags)
     invalidateCache('/tags')
   }
 

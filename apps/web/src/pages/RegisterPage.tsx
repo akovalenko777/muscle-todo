@@ -5,13 +5,7 @@ import { toast } from "react-toastify"
 import api from "../api/axios"
 import useLogin from "../hooks/useLogin"
 import { Link } from "react-router-dom"
-
-interface RegisterValues {
-  email: string
-  name: string
-  password: string
-  password_repeat: string
-}
+import type { RegisterValues } from "../types/user"
 
 export default function RegisterPage() {
   const { doLogin } = useLogin()

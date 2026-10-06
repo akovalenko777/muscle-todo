@@ -9,7 +9,7 @@ import VoiceTextField from './VoiceTextField';
 import { fetchData } from '../utils/fetchHelper';
 import type { Tag } from '../types/tag';
 import { useTaskPermissions } from '../hooks/useTaskPermissions';
-import type { User } from '../store/authStore';
+import type { User } from '../types/user';
 import { getPriorityLabel, PRIORITY_LABELS } from '../constants/taskLabels';
 import RichTextEditor from './RichTextEditor';
 import { useEditor } from '@tiptap/react'
