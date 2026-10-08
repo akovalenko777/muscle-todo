@@ -1,20 +1,15 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service.js";
 import bcrypt from 'bcrypt';
-import { JwtService, JwtSignOptions } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import ms from 'ms';
+
 import { createHash } from "node:crypto";
 import { JwtPayload } from "./jwt.strategy.js";
-import { randomUUID } from 'node:crypto';
-import { OAuth2Client } from 'google-auth-library';
 
-export type TRole = 'USER' | 'ADMIN'
-export interface IUser {
-  id: string
-  email: string
-  role: TRole
-}
+import { OAuth2Client } from 'google-auth-library';
+import { TokensService } from "../tokens/token.service.js";
+
 @Injectable()
 export class AuthService {
   private readonly googleClient: OAuth2Client;
@@ -23,51 +18,9 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly tokensService: TokensService
   ) {
     this.googleClient = new OAuth2Client(this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'))
-  }
-
-  private generateTokens(user: IUser) {
-    const payload = { sub: user.id, username: user.email, jti: randomUUID(), role: user.role }
-    const expiresIn =  this.configService.getOrThrow<string>('JWT_REFRESH_EXPIRES_IN') as JwtSignOptions['expiresIn']
-    const expiresAt = new Date(new Date().getTime() + ms(expiresIn as ms.StringValue))
-    const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
-      expiresIn
-    })
-    const refreshHash = createHash('sha256').update(refreshToken).digest('hex')
-    return {
-      accessToken: this.jwtService.sign(payload, {
-        secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
-        expiresIn: this.configService.getOrThrow<string>('JWT_ACCESS_EXPIRES_IN') as JwtSignOptions['expiresIn']
-      }),
-      refreshToken,
-      expiresAt,
-      refreshHash
-    }
-  }
-
-  private async upsertRefreshToken(user: IUser) {
-    const { refreshToken, accessToken, expiresAt, refreshHash } = this.generateTokens(user)
-
-    await this.prisma.refreshToken.upsert({
-      where: { userId: user.id },
-      update: {
-        refreshHash,
-        expiresAt
-      },
-      create: {
-        userId: user.id,
-        refreshHash,
-        expiresAt
-      }
-    })
-
-    return {
-      accessToken,
-      refreshToken,
-      user
-    }
   }
 
   async validateUser(email: string, password: string) {
@@ -95,7 +48,11 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password)
-    return await this.upsertRefreshToken(user)
+    return await this.tokensService.upsertRefreshToken(user)
+  }
+
+  async logout(userId: string) {
+    return this.tokensService.revokeRefreshToken(userId)
   }
 
   async refresh(refreshToken: string) {
@@ -121,7 +78,7 @@ export class AuthService {
       throw new UnauthorizedException('Token is revoked.')
     }
 
-    const { refreshToken: refreshTokenNew, accessToken, expiresAt, refreshHash } = this.generateTokens({id: payload.sub, email: payload.username, role: payload.role })
+    const { refreshToken: refreshTokenNew, accessToken, expiresAt, refreshHash } = this.tokensService.generateTokens({id: payload.sub, email: payload.username, role: payload.role })
 
     await this.prisma.refreshToken.update({
       where: { userId: payload.sub },
@@ -175,6 +132,6 @@ export class AuthService {
       })
     }
 
-    return await this.upsertRefreshToken(user)
+    return await this.tokensService.upsertRefreshToken(user)
   }
 }

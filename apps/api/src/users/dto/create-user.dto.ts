@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, IsStrongPassword } from 'class-validator';
+import { PASSWORD_REQ } from '../../tasks/helper/constants.js';
 
 export class CreateUserDto {
   @IsEmail()
@@ -11,15 +12,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  // NOTE: lite password requirements just for testing
-  // TODO: for production set to default
-  @IsStrongPassword({
-    minLength: 3,
-    minLowercase: 1,
-    minUppercase: 0,
-    minNumbers: 0,
-    minSymbols: 0
-  })
+  @IsStrongPassword(PASSWORD_REQ)
   @IsOptional()
   password: string
 

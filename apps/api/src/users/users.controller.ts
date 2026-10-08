@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Patch, Param, Body, Delete, HttpCode, HttpStatus } from "@nestjs/common";
 import { UsersService } from "./users.service.js";
 import { CreateUserDto } from "./dto/create-user.dto.js";
-import { UpdateUserDto } from "./dto/update-user.dto.js";
+import { UpdateUserDto, UpdateUserPasswordDto } from "./dto/update-user.dto.js";
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from "../auth/decorators/public.decorator.js";
 import { CurrentUser } from "../auth/decorators/current-user.decorator.js";
@@ -39,6 +39,11 @@ export class UsersController {
   @Patch('me')
   updateMe(@CurrentUser() user: { userId: string }, @Body() dto: UpdateUserDto){
     return this.usersService.update(user.userId, dto)
+  }
+
+  @Patch('me/password')
+  updatePassword(@CurrentUser() user: { userId: string }, @Body() dto: UpdateUserPasswordDto){
+    return this.usersService.updatePassword(user.userId, dto)
   }
 
   @Patch(':id')

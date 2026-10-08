@@ -28,6 +28,7 @@ export async function registerAndLogin(
   return {
     userId: userResponse.body.id,
     user,
-    accessToken: loginResponse.body.accessToken as string
+    accessToken: loginResponse.body.accessToken as string,
+    refreshToken: loginResponse.body.refreshToken as string
   }
 }

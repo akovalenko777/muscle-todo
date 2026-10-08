@@ -167,5 +167,119 @@ describe('Users (e2e)', () => {
         })
     })
 
+    it('regular user try change password without new password', async () => {
+      const currentPassword = 'Aa1'
+      const { accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com', password: currentPassword })
+      await request(app.getHttpServer())
+        .patch('/users/me/password')
+        .set('Authorization', `bearer ${userToken}`)
+        .send({
+          currentPassword
+        })
+        .expect(400)
+    })
+    it('regular user try change password with empty new password', async () => {
+      const currentPassword = 'Aa1'
+      const { accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com', password: currentPassword })
+      await request(app.getHttpServer())
+        .patch('/users/me/password')
+        .set('Authorization', `bearer ${userToken}`)
+        .send({
+          currentPassword,
+          password: ''
+        })
+        .expect(400)
+    })
+    it('regular user try change password with weak new password', async () => {
+      const currentPassword = 'Aa1'
+      const { accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com', password: currentPassword })
+      await request(app.getHttpServer())
+        .patch('/users/me/password')
+        .set('Authorization', `bearer ${userToken}`)
+        .send({
+          currentPassword,
+          password: 'AAAAAAAA'
+        })
+        .expect(400)
+    })
+    it('regular user try change password with wrong current password', async () => {
+      const currentPassword = 'Aa1'
+      const { accessToken: userToken } = await registerAndLogin(app, { email: 'regular@test.com', password: currentPassword })
+      await request(app.getHttpServer())
+        .patch('/users/me/password')
+        .set('Authorization', `bearer ${userToken}`)
+        .send({
+          currentPassword: currentPassword+'1',
+          password: 'NewAa2'
+        })
+        .expect(400)
+    })
+    it('regular user try change password, success scenario', async () => {
+      const email = 'regular@test.com'
+      const currentPassword = 'Aa1'
+      const newPassword = 'NewAa2'
+      const { accessToken, refreshToken } = await registerAndLogin(app, { email, password: currentPassword })
+      const response = await request(app.getHttpServer())
+        .patch('/users/me/password')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          currentPassword: currentPassword,
+          password: newPassword
+        })
+        .expect(200)
+      const newRefreshToken = response.body.refreshToken
+      // try to refresh with old token
+      await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({ refreshToken })
+        .expect(401)
+      // try to refresh with new token
+      await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({ refreshToken: newRefreshToken })
+        .expect(200)
+      // logout
+      await request(app.getHttpServer())
+        .post('/auth/logout')
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+      // other logout for unauthorized user will return 200 OK
+      await request(app.getHttpServer())
+        .post('/auth/logout')
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+      // try to refresh token after logout  
+      await request(app.getHttpServer())
+        .post('/auth/refresh')
+        .send({ refreshToken: newRefreshToken })
+        .expect(401)
+      // try to login with old password
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send ({
+          email,
+          password: currentPassword
+        })
+        .expect(401)
+      // try to login with new password
+      await request(app.getHttpServer())
+        .post('/auth/login')
+        .send ({
+          email,
+          password: newPassword
+        })
+        .expect(200)
+    })
+    it('regular user try change password without token', async () => {
+      const currentPassword = 'Aa1'
+      await registerAndLogin(app, { email: 'regular@test.com', password: currentPassword })
+      await request(app.getHttpServer())
+        .patch('/users/me/password')
+        .send({
+          currentPassword: currentPassword,
+          password: 'NewAa2'
+        })
+        .expect(401)
+    })
   })
 })
