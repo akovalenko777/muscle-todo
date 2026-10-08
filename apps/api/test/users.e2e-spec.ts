@@ -227,6 +227,10 @@ describe('Users (e2e)', () => {
           password: newPassword
         })
         .expect(200)
+      expect(response.body).toHaveProperty('accessToken')
+      expect(response.body).toHaveProperty('refreshToken')
+      expect(response.body.user).not.toHaveProperty('passwordHash')
+
       const newRefreshToken = response.body.refreshToken
       // try to refresh with old token
       await request(app.getHttpServer())
@@ -234,24 +238,24 @@ describe('Users (e2e)', () => {
         .send({ refreshToken })
         .expect(401)
       // try to refresh with new token
-      await request(app.getHttpServer())
+      const refreshResponse = await request(app.getHttpServer())
         .post('/auth/refresh')
         .send({ refreshToken: newRefreshToken })
         .expect(200)
       // logout
       await request(app.getHttpServer())
         .post('/auth/logout')
-        .set('Authorization', `bearer ${accessToken}`)
+        .set('Authorization', `bearer ${refreshResponse.body.accessToken}`)
         .expect(200)
       // other logout for unauthorized user will return 200 OK
       await request(app.getHttpServer())
         .post('/auth/logout')
-        .set('Authorization', `bearer ${accessToken}`)
+        .set('Authorization', `bearer ${refreshResponse.body.accessToken}`)
         .expect(200)
       // try to refresh token after logout  
       await request(app.getHttpServer())
         .post('/auth/refresh')
-        .send({ refreshToken: newRefreshToken })
+        .send({ refreshToken: refreshResponse.body.refreshToken })
         .expect(401)
       // try to login with old password
       await request(app.getHttpServer())
