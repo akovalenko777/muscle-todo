@@ -33,7 +33,10 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(`User with ${id} is not found`)
     }
-    return user
+    // check auth provider and remove google ID field
+    const { googleId, ...data } = user
+
+    return {...data, authProvider: googleId ? 'google' : 'local'}
   }
 
   async create(dto: CreateUserDto) {
@@ -95,15 +98,17 @@ export class UsersService {
       throw new BadRequestException('Invalid current password')
     }
     // set new password hash
-    const passwordHash = await bcrypt.hash(password, 10)
+    const newPasswordHash = await bcrypt.hash(password, 10)
     try {
       await this.prisma.user.update({
         where: { id },
-        data: { passwordHash },
+        data: { passwordHash: newPasswordHash },
         omit
       })
       // generate and return new tokens
-      return await this.tokensService.upsertRefreshToken(user)
+      // eslint-disable-next-line no-unused-vars
+      const { passwordHash, ...userWithoutPassword } = user
+      return await this.tokensService.upsertRefreshToken({...userWithoutPassword, authProvider: 'local'})
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
         throw new NotFoundException(`User with ${id} not found for update`)

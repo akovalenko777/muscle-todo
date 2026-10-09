@@ -9,6 +9,7 @@ import { JwtPayload } from "./jwt.strategy.js";
 
 import { OAuth2Client } from 'google-auth-library';
 import { TokensService } from "../tokens/token.service.js";
+import { IUser } from "../types/user.js";
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,7 @@ export class AuthService {
     this.googleClient = new OAuth2Client(this.configService.getOrThrow<string>('GOOGLE_CLIENT_ID'))
   }
 
-  async validateUser(email: string, password: string) {
+  async validateUser(email: string, password: string): Promise<IUser> {
     const user = await this.prisma.user.findUnique({
       where: { email },
       select: { id: true, email: true, name: true, passwordHash: true, googleId: true, role: true }
@@ -43,7 +44,7 @@ export class AuthService {
     }
     // eslint-disable-next-line no-unused-vars
     const { passwordHash, ...userWithoutPassword } = user
-    return userWithoutPassword
+    return { ...userWithoutPassword, authProvider: 'local' }
   }
 
   async login(email: string, password: string) {
@@ -132,6 +133,6 @@ export class AuthService {
       })
     }
 
-    return await this.tokensService.upsertRefreshToken(user)
+    return await this.tokensService.upsertRefreshToken({...user, authProvider: 'google'})
   }
 }

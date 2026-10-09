@@ -43,7 +43,7 @@ export default function UserPopper(){
         ref={anchorRef}
         aria-label="Button group with a nested menu"
       >
-        <Button onClick={() => {}}>Профіль</Button>
+        <Button onClick={() => navigate('/profile')}>Профіль</Button>
         <Button
           size="small"
           aria-controls={anchorEl ? 'split-button-menu' : undefined}
