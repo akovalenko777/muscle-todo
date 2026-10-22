@@ -5,6 +5,7 @@ import { CreateTaskDto } from './dto/create-task.dto.js';
 import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TaskWhereInput, TaskWhereUniqueInput } from '../generated/prisma/models.js';
 import { isContainText, sanitizeDescription } from './helper/sanitizeDescription.js';
+import { compareStatuses } from './helper/compareStatuses.js';
 
 const include = {
   assignee: {
@@ -116,6 +117,19 @@ export class TasksService {
         dataForUpdate.assignee = assigneeId === null
           ? { disconnect: true }
           : { connect: { id: assigneeId } }
+      }
+
+      if (data.status) {
+        //get teask by ID and compare statuses
+        const task = await this.prisma.task.findUnique({
+          where: { id }
+        })
+        if(task){
+          const completedAt = compareStatuses(task.status, data.status)
+          if(completedAt !== undefined) {
+            dataForUpdate.completedAt = completedAt
+          }
+        }
       }
 
       return await this.prisma.$transaction(async (tx) => {

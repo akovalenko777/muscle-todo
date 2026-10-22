@@ -15,6 +15,7 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "oxlint src/ test/",
+    "migrate:test": "dotenv -e .env.test -- prisma migrate deploy",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",

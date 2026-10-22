@@ -270,5 +270,71 @@ describe('Tasks (e2e)', () => {
         .expect(200)
       expect(after.body.description).toBe('test')
     })
+
+    it('check completedAt after changing statuses', async () => {
+      const responseCreate = await request(app.getHttpServer())
+        .post('/tasks')
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'Test',
+          description: 'test'
+        })
+        .expect(201)
+
+      //update status to DONE
+      const responseUpdate1 = await request(app.getHttpServer())
+        .patch('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          status: 'DONE'
+        })
+        .expect(200)
+      expect(responseUpdate1.body.status).toBe('DONE')
+      expect(responseUpdate1.body.completedAt).not.toBeNull()
+      expect(new Date(responseUpdate1.body.completedAt).getTime()).not.toBeNaN()
+
+      const responseUpdate1_1 = await request(app.getHttpServer())
+        .patch('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          title: 'New title'
+        })
+        .expect(200)
+      expect(responseUpdate1_1.body.status).toBe('DONE')
+      expect(responseUpdate1_1.body.completedAt).toBe(responseUpdate1.body.completedAt)
+
+      //set DONE to already donned task
+      const responseUpdate1_2 = await request(app.getHttpServer())
+        .patch('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          status: 'DONE'
+        })
+        .expect(200)
+      expect(responseUpdate1_2.body.status).toBe('DONE')
+      expect(responseUpdate1_2.body.completedAt).toBe(responseUpdate1.body.completedAt)
+
+      //update status to IN_PROGRESS
+      const responseUpdate2 = await request(app.getHttpServer())
+        .patch('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          status: 'IN_PROGRESS'
+        })
+        .expect(200)
+      expect(responseUpdate2.body.status).toBe('IN_PROGRESS')
+      expect(responseUpdate2.body.completedAt).toBeNull()
+
+      //update status to REVIEWED
+      const responseUpdate3 = await request(app.getHttpServer())
+        .patch('/tasks/' + responseCreate.body.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .send({
+          status: 'REVIEWED'
+        })
+        .expect(200)
+      expect(responseUpdate3.body.status).toBe('REVIEWED')
+      expect(responseUpdate3.body.completedAt).toBeNull()
+    })
   })
 })

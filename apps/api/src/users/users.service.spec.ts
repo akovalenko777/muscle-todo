@@ -93,7 +93,13 @@ describe('UsersServices', () => {
       data: { passwordHash: 'newPasswordHash' },
       omit: { passwordHash: true }
     })
-    expect(tokens.upsertRefreshToken).toHaveBeenCalledWith(TEST_USER)
+    const expectUserData = {
+      id: TEST_USER.id,
+      email: TEST_USER.email,
+      role: TEST_USER.role,
+      authProvider: 'local'
+    }
+    expect(tokens.upsertRefreshToken).toHaveBeenCalledWith(expectUserData)
   })
 
   it('unable change password for deleted user', async () => {
