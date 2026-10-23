@@ -10,8 +10,9 @@ import { JwtAuthGuard } from './auth/jwt-auth.guard.js';
 import { RoleGuard } from './auth/roles.guard.js';
 import { AppService } from './app.service.js';
 import { TagsModule } from './tags/tags.module.js';
+import { ArchiveModule } from './archive/archive.module.js';
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, TasksModule, UsersModule, AuthModule, TagsModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, TasksModule, UsersModule, AuthModule, TagsModule, ArchiveModule],
   controllers: [AppController],
   providers: [AppService,
     {

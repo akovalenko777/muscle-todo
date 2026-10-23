@@ -5,11 +5,13 @@ import { AppModule } from '../src/app.module.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
 import { registerAndLogin } from './utils/auth-helper.js';
 import { createValidationPipe } from '../src/config/validation-pipe.js';
+import { ArchiveService } from '../src/archive/archive.service.js';
 
 describe('Tasks (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let accessToken: string;
+  let userId: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -33,6 +35,7 @@ describe('Tasks (e2e)', () => {
 
     const auth = await registerAndLogin(app)
     accessToken = auth.accessToken
+    userId = auth.userId
   })
 
   describe('Tasks flow', () => {
@@ -335,6 +338,97 @@ describe('Tasks (e2e)', () => {
         .expect(200)
       expect(responseUpdate3.body.status).toBe('REVIEWED')
       expect(responseUpdate3.body.completedAt).toBeNull()
+    })
+
+    it('archive task', async () => {
+      const archiveService = app.get(ArchiveService)
+      // normal old task - must be archived
+      const task1Data = await prisma.task.create({
+        data: {
+          title: 'Test task 1',
+          description: 'Test task',
+          status: 'DONE',
+          createdAt: new Date('2026-10-10T00:00:00Z'),
+          completedAt: new Date('2026-10-15T00:00:00Z'),
+          assignee: { connect: { id: userId } }
+        }
+      })
+
+      // normal fresh task - must not be archived
+      const task2Data = await prisma.task.create({
+        data: {
+          title: 'Test task 2',
+          description: 'Test task',
+          status: 'DONE',
+          createdAt: new Date('2026-10-10T00:00:00Z'),
+          completedAt: new Date('2026-10-24T12:00:00Z'),
+          assignee: { connect: { id: userId } }
+        }
+      })
+
+      // not DONE completed task - must not be archived
+      const task3Data = await prisma.task.create({
+        data: {
+          title: 'Test task 3',
+          description: 'Test task',
+          status: 'REVIEWED',
+          createdAt: new Date('2026-10-10T00:00:00Z'),
+          completedAt: new Date('2026-10-15T12:00:00Z'),
+          assignee: { connect: { id: userId } }
+        }
+      })
+
+      // already DONE and archived task - must be skipped (updatedAt - not changed)
+      const task4Data = await prisma.task.create({
+        data: {
+          title: 'Test task 4',
+          description: 'Test task',
+          status: 'DONE',
+          createdAt: new Date('2026-10-10T00:00:00Z'),
+          completedAt: new Date('2026-10-15T12:00:00Z'),
+          updatedAt: new Date('2026-10-16T12:00:00Z'),
+          archived: true,
+          assignee: { connect: { id: userId } }
+        }
+      })
+      
+
+      await archiveService.archiveTasks(new Date('2026-10-25T00:00:00Z').getTime())
+      // get and check tasks tasks
+      await request(app.getHttpServer())
+        .get('/tasks/'+task1Data.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.archived).toBeTruthy()
+        })
+        
+
+      await request(app.getHttpServer())
+        .get('/tasks/'+task2Data.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.archived).toBeFalsy()
+        })
+
+      await request(app.getHttpServer())
+        .get('/tasks/'+task3Data.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.archived).toBeFalsy()
+        })
+
+      await request(app.getHttpServer())
+        .get('/tasks/'+task4Data.id)
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+        .then((response) => {
+          expect(response.body.archived).toBeTruthy()
+          expect(new Date(response.body.updatedAt).getTime()).toBe(new Date('2026-10-16T12:00:00Z').getTime())
+        })
+       
     })
   })
 })
