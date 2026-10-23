@@ -428,7 +428,39 @@ describe('Tasks (e2e)', () => {
           expect(response.body.archived).toBeTruthy()
           expect(new Date(response.body.updatedAt).getTime()).toBe(new Date('2026-10-16T12:00:00Z').getTime())
         })
-       
+    })
+
+    it('get unarchived task for dashboard', async () => {
+      //created two tasks archived and not archived
+      await prisma.task.create({
+        data: {
+          title: 'Test task 1',
+          description: 'Test task',
+          status: 'DONE',
+          createdAt: new Date('2026-10-10T00:00:00Z'),
+          completedAt: new Date('2026-10-15T00:00:00Z'),
+          archived: true,
+          assignee: { connect: { id: userId } }
+        }
+      })
+
+      await prisma.task.create({
+        data: {
+          title: 'Test task 2',
+          description: 'Test task',
+          status: 'DONE',
+          createdAt: new Date('2026-10-10T00:00:00Z'),
+          assignee: { connect: { id: userId } }
+        }
+      })
+      const tasksResponse = await request(app.getHttpServer())
+        .get('/tasks/')
+        .set('Authorization', `bearer ${accessToken}`)
+        .expect(200)
+      expect(tasksResponse.body.length).toBe(1)
+      tasksResponse.body.forEach((task: { archived: boolean }) => {
+        expect(task.archived).toBeFalsy()
+      })
     })
   })
 })

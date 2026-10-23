@@ -25,7 +25,7 @@ export class TasksService {
   constructor(private readonly prisma: PrismaService) { }
 
   findAll(userId: string, role: UserRole, status?: TaskStatus) {
-    const where: TaskWhereInput = {}
+    const where: TaskWhereInput = { archived: false }
     if (role === 'USER') {
       where.OR = [{ assigneeId: userId }, { assigneeId: null }]
     }
