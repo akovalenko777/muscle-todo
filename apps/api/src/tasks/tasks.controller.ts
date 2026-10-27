@@ -17,12 +17,21 @@ import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TasksService } from './tasks.service.js';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator.js';
+import { ArchiveTaskDto } from './dto/archive-task.dto.js';
 
 @ApiTags('tasks')
 @ApiBearerAuth()
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
+
+  @Get('archive')
+  findArchive(
+    @CurrentUser() user: { userId: string, role: UserRole },
+    @Query() dto: ArchiveTaskDto
+  ) {
+    return this.tasksService.findAllArchived(dto, user.userId, user.role)
+  }
 
   @Get()
   findAll(

@@ -6,6 +6,7 @@ import { UpdateTaskDto } from './dto/update-task.dto.js';
 import { TaskWhereInput, TaskWhereUniqueInput } from '../generated/prisma/models.js';
 import { isContainText, sanitizeDescription } from './helper/sanitizeDescription.js';
 import { compareStatuses } from './helper/compareStatuses.js';
+import { ArchiveTaskDto } from './dto/archive-task.dto.js';
 
 const include = {
   assignee: {
@@ -37,6 +38,49 @@ export class TasksService {
       include,
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async findAllArchived(dto: ArchiveTaskDto, userId: string, role: UserRole){
+    let page = parseInt(dto.page || '1', 10)
+    let pageSize = parseInt(dto.pageSize || '5', 10)
+    if(page <= 0) page = 1
+    if(pageSize <= 0) pageSize = 5
+    if(pageSize > 50) pageSize = 50 // limit MAX page size
+
+    const skip = (page - 1) * pageSize
+    const where: TaskWhereInput = { archived: true }
+    
+    where.AND = [
+      role === 'USER' ? { OR: [{  assigneeId: userId }, { assigneeId: null }] } : {},
+      dto?.search ? { OR: [
+        { title: { contains: dto.search, mode: 'insensitive' }},
+        { description: { contains: dto.search, mode: 'insensitive' } }
+      ] } : {}
+    ]
+
+    if (dto.tags) {
+      where.tags = {
+        some: { tagId: { in: dto.tags.split(',') } }
+      }
+    }
+
+    if (dto.assigneeId && role === 'ADMIN') {
+      where.assigneeId = dto.assigneeId
+    }
+
+    const [tasks, count] = await this.prisma.$transaction([
+      this.prisma.task.findMany({
+        where,
+        take: pageSize,
+        skip,
+        include,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.task.count({
+        where
+      })
+    ])
+    return { tasks, count }
   }
 
   async findOne(id: string, userId: string, role: UserRole) {
