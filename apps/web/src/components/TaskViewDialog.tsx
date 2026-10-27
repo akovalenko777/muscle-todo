@@ -90,8 +90,8 @@ export default function TaskViewDialog() {
       </DialogContent>
       <DialogActions sx={{ borderTop: '1px solid', borderColor: 'divider', p: 2, pr: 3, backgroundColor: 'background.default', gap: 2 }}>
         <Button onClick={() => setTaskForView(null)}>Закрити</Button>
-        {canClaim && <Button variant='contained' color='success' onClick={handleClaimClick}>Прив'язати</Button>}
-        {canEdit && <Button variant='contained' color='info' onClick={handleEditClick}>Редагувати</Button>}
+        {canClaim && !task.archived && <Button variant='contained' color='success' onClick={handleClaimClick}>Прив'язати</Button>}
+        {canEdit && !task.archived && <Button variant='contained' color='info' onClick={handleEditClick}>Редагувати</Button>}
       </DialogActions>
     </Drawer>
   )

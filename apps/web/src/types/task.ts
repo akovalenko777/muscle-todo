@@ -22,8 +22,10 @@ export interface Task {
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
+  archived: boolean;
   createdAt: string;
   updatedAt: string;
+  completedAt: string;
   executionTime: number | null;
   assigneeId: string | null;
   assignee: TaskAssignee | null;
