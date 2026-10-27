@@ -74,9 +74,10 @@ export default function UserPopper(){
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                    <MenuItem onClick={() => handleMenuClick('/tags')}>Теги</MenuItem>
-                    { isAdmin && <MenuItem onClick={() => handleMenuClick('/users')}>Користувачі</MenuItem>}
-                    <MenuItem onClick={logout}>Вийти</MenuItem>
+                  <MenuItem onClick={() => handleMenuClick('/archive')}>Архів</MenuItem>
+                  <MenuItem onClick={() => handleMenuClick('/tags')}>Теги</MenuItem>
+                  { isAdmin && <MenuItem onClick={() => handleMenuClick('/users')}>Користувачі</MenuItem>}
+                  <MenuItem onClick={logout}>Вийти</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>

@@ -29,7 +29,9 @@ export default function TaskCard({ task }: TaskCardProps) {
 
   const style = {
     transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.5 : 1
+    opacity: isDragging ? 0.7 : 1,
+    rotate: isDragging ? '-3deg' : '0deg',
+    zIndex: 1000
   };
 
   const handleEditClick = (e: SyntheticEvent, task: Task) => {
@@ -92,7 +94,7 @@ export default function TaskCard({ task }: TaskCardProps) {
               <Tooltip title={getPriorityLabel(task.priority)}>
                 <span className={`priority-icon ${task.priority}`}></span>
               </Tooltip>
-              <Button variant='text' sx={{ fontWeight: '600', p: 0.2, minWidth: 'auto', textAlign: 'left', lineHeight: 1.2 }} onClick={() => setTaskForView(task)}>
+              <Button variant='text' sx={{ fontWeight: '600', p: 0.2, minWidth: 'auto', textAlign: 'left', lineHeight: 1.2, color: 'primary.light' }} onClick={() => setTaskForView(task)}>
                 {task.title}
               </Button>
             </Box>

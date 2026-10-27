@@ -26,6 +26,7 @@
   height: 16px;
   position: relative;
   margin-right: 5px;
+  top: 4px;
 
   &::before,
   &::after {

@@ -51,20 +51,17 @@ export default function TaskViewDialog() {
         {task.title}
       </DialogTitle>
       <DialogContent>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 200px', mt: 2, height: 'calc(100% - 16px)' }}>
-          <Box sx={{ pr: 2 }}>
-            <RichTextReadOnly content={task.description} extensions={editorExtensions} />
-          </Box>
-          <Box sx={{ borderLeft: '1px solid', borderColor: 'divider', fontSize: '.8rem', pl: 2 }}>
-            <Stack sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ pt: 2 }}>
+          <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', fontSize: '.8rem', pb: 2, mb: 2 }}>
+            <Stack sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 20px' }}>
+              {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <b>ID</b> <Typography sx={{ color: 'text.secondary', fontSize: '.7rem' }}>{task.id}</Typography>
+              </Box> */}
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <b>Статус</b>  <Chip size='small' label={getStatusLabel(task.status)} sx={{ backgroundColor: STATUS_COLORS[task.status] }} />
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <b>Статус</b>  <Chip label={getStatusLabel(task.status)} sx={{ backgroundColor: STATUS_COLORS[task.status] }} />
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <b>Пріоритет</b> <span className={`priority-icon ${task.priority}`}></span> {getPriorityLabel(task.priority)}
+                <b>Пріоритет</b> <Box><span className={`priority-icon ${task.priority}`}></span> {getPriorityLabel(task.priority)}</Box>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <b>Створена</b> <span>{formatDate(task.createdAt)}</span>
@@ -72,19 +69,22 @@ export default function TaskViewDialog() {
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <b>Змінена</b> <span>{formatDate(task.updatedAt)}</span>
               </Box>
-              { task.assigneeId && <Box>
+              { task.assigneeId && <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box><b>Виконавець</b></Box>
-                <Chip icon={<FaceIcon />} size="small" label={task.assignee?.name} sx={{ mt: 1 }} />
+                <Chip icon={<FaceIcon />} size="small" label={task.assignee?.name} />
               </Box> }
-              {task.tags && (<Box>
+              {task.tags && (<Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Box sx={{ mb: 0.5 }}><b>Теги</b></Box>
                 {task.tags.map((el: TaskTag) => <Chip size="small"
                   key={el.tagId}
                   label={el.tag.text}
-                  sx={{ backgroundColor: el.tag.color, fontSize: '0.7rem', mr: 0.5, height: '16px' }}
+                  sx={{ backgroundColor: el.tag.color, fontSize: '0.7rem', ml: 0.5, height: '16px' }}
                 />)}
               </Box>)}
             </Stack>
+          </Box>
+          <Box sx={{ pr: 2 }}>
+            <RichTextReadOnly content={task.description} extensions={editorExtensions} />
           </Box>
         </Box>
       </DialogContent>

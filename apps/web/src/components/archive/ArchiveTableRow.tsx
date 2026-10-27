@@ -2,6 +2,7 @@ import { TableCell, TableRow, Chip, Button, Box } from "@mui/material";
 import type { Task, TaskTag } from "../../types/task";
 import { formatDate } from "../../utils/functions";
 import { getPriorityLabel } from "../../constants/taskLabels";
+import FaceIcon from '@mui/icons-material/Face';
 
 interface Props {
   num: number,
@@ -19,14 +20,14 @@ export default function ArchiveTableRow({ num, task, onDetail, isAdmin }: Props)
       </TableCell>
       <TableCell>{formatDate(task.createdAt)}</TableCell>
       <TableCell>
-        <Button variant='text' sx={{ fontWeight: '600', p: 0.2, minWidth: 'auto', textAlign: 'left', lineHeight: 1.2 }} onClick={() => onDetail(task)}>
+        <Button variant='text' sx={{ fontWeight: '600', p: 0.2, minWidth: 'auto', textAlign: 'left', lineHeight: 1.2, color: 'primary.light' }} onClick={() => onDetail(task)}>
           {task.title}
         </Button>
       </TableCell>
       {isAdmin ? <TableCell>
         {task.assigneeId
-            ? <Chip size="small" label={task.assignee?.name} />
-            : "Не прив'язана"
+            ? <Chip icon={<FaceIcon />} size="small" label={task.assignee?.name} />
+            : <i>Не прив'язана</i>
           }
       </TableCell> : null}
       <TableCell>
