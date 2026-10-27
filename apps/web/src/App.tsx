@@ -7,6 +7,7 @@ import RegisterPage from "./pages/RegisterPage"
 import TagsPage from "./pages/TagsPage"
 import UserPage from "./pages/UsersPage"
 import ProfilePage from "./pages/ProfilePage"
+import ArchivePage from "./pages/ArchivePage"
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path="/tags" element={<TagsPage />} />
         <Route path="/users" element={<UserPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/archive" element={<ArchivePage />} />
       </Route>
     </Routes>
   )
