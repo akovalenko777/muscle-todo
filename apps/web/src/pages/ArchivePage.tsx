@@ -77,7 +77,7 @@ export default function ArchivePage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Список архівних задач</h1>
+        <h1>Архівні задачі</h1>
       </Stack>
       <ArchiveFilter onFilter={filterHandler} onReset={resetHandler} />
       <Paper sx={{ p: 2 }}>

@@ -1,12 +1,13 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { Container } from "@mui/material";
+import { AppBar, Box, Container, CssBaseline, Toolbar } from "@mui/material";
 import { useEffect, useState, useEffectEvent } from "react";
 import api from "../api/axios";
 import type { AxiosResponse } from "axios";
 import Loader from "./Loader";
 import { Navigate } from "react-router-dom";
 import SiteHeader from "./common/SiteHeader";
+import Sidebar from "./common/Sidebar";
 
 export default function ProtectedRoute() {
   const { accessToken, updateUser } = useAuthStore()
@@ -29,24 +30,31 @@ export default function ProtectedRoute() {
   })
 
   useEffect(() => {
-    if(!localStorage.getItem('refreshToken')) {
+    if (!localStorage.getItem('refreshToken')) {
       navigate('/login')
       return
     }
     onMountCheck()
   }, [navigate])
 
-  
+
 
   if (loading) return <Loader />
   if (!accessToken) return <Navigate to="/login" replace />
 
   return (
     <div className="application">
-      <SiteHeader />
-      <Container maxWidth='xl'>
-        <Outlet />
-      </Container>
+      <Box sx={{ display: 'flex' }}>
+        <CssBaseline />
+        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <SiteHeader />
+        </AppBar>
+        <Sidebar />
+        <Box component="main" sx={{ flexGrow: 1, p: 5, pt: 0 }}>
+          <Toolbar />
+          <Outlet />
+        </Box>
+      </Box>
     </div>
   )
 }

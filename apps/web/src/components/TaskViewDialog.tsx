@@ -41,6 +41,7 @@ export default function TaskViewDialog() {
       anchor="right"
       open={!!task}
       onClose={() => setTaskForView(null)}
+      sx={{ zIndex: 1800 }}
       slotProps={{
         paper: {
           sx: { width: 'min(50%, 600px)', p: 0 }

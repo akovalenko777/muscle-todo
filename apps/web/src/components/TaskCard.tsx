@@ -92,7 +92,7 @@ export default function TaskCard({ task }: TaskCardProps) {
           <Box sx={{ p: 1 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: '5px', mb: 2 }}>
               <Tooltip title={getPriorityLabel(task.priority)}>
-                <span className={`priority-icon ${task.priority}`}></span>
+                <span className={`priority-icon ${task.priority}`} style={{top: 0}}></span>
               </Tooltip>
               <Button variant='text' sx={{ fontWeight: '600', p: 0.2, minWidth: 'auto', textAlign: 'left', lineHeight: 1.2, color: 'primary.light' }} onClick={() => setTaskForView(task)}>
                 {task.title}

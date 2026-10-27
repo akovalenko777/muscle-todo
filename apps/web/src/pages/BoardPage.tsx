@@ -88,14 +88,14 @@ export default function BoardPage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Список задач</h1>
+        <h1>Дошка задач</h1>
         <Button variant="contained" color="success" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
       </Stack>
       <Suspense fallback={<Loader />}>
         <TaskFormDialog key={`${taskForEdit?.id ?? 'new'}-${session}`} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
       </Suspense>
       <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-        <Box sx={{ display: 'flex', gap: 2, p: 2 }}>
+        <Box sx={{ display: 'flex', gap: 4 }}>
           {STATUSES.map((status) => (
             <Column
               key={status}

@@ -100,7 +100,7 @@ export default function TagsPage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Список тегів</h1>
+        <h1>Теги</h1>
         <Button variant="contained" color="success" onClick={() => setOpenAdd(true)} startIcon={<AddCircleIcon />}>Додати тег</Button>
       </Stack>
       <Paper sx={{ p: 2 }}>

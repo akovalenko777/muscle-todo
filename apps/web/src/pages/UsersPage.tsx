@@ -112,7 +112,7 @@ export default function UserPage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Список користувачів</h1>
+        <h1>Користувачі</h1>
         <Button variant="contained" color="success" onClick={handleOpenAdd} startIcon={<AddCircleIcon />}>Додати користувача</Button>
       </Stack>
       <Paper sx={{ p: 2 }}>
