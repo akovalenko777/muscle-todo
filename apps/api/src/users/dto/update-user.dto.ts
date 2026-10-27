@@ -1,4 +1,4 @@
-import { OmitType, PartialType, PickType } from "@nestjs/mapped-types";
+import { OmitType, PartialType } from "@nestjs/mapped-types";
 import { CreateUserDto } from "./create-user.dto.js";
 import { IsEnum, IsOptional, IsString, IsNotEmpty, IsStrongPassword } from "class-validator";
 import { UserRole } from "../../generated/prisma/enums.js";
