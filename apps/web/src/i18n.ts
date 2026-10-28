@@ -8,6 +8,7 @@ export type TLang = 'en' | 'uk'
 
 export interface ILangs {
   code: TLang
+  iso: string
   name: string
   shortName: string
 }
@@ -15,11 +16,13 @@ export interface ILangs {
 export const langOptions: ILangs[] = [
   {
     code: 'en',
+    iso: 'en-US',
     name: 'English',
     shortName: 'EN',
   },
   {
     code: 'uk',
+    iso: 'uk-UA',
     name: 'Українська',
     shortName: 'UK',
   }

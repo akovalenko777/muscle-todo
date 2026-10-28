@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Logo from './../../assets/logo.svg';
 import UserPopper from "./UserPopper";
 import { useTranslation } from "react-i18next";
+import LangSwither from "./LangSwitcher";
 
 
 export default function SiteHeader() {
@@ -22,9 +23,10 @@ export default function SiteHeader() {
       </Box>
       <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 5 }}>
         <div>{t('nav.today', { date: formatCurrentDate() })}</div>
-        <div>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
+          <LangSwither />
           <UserPopper />
-        </div>
+        </Box>
       </Box>
     </Toolbar>
   )
