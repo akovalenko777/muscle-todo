@@ -103,7 +103,7 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
     <Drawer
       anchor="right"
       open={open}
-      sx={{ zIndex: 1800 }}
+      sx={{ zIndex: 1300 }}
       onClose={onClose}
       slotProps={{
         paper: {
