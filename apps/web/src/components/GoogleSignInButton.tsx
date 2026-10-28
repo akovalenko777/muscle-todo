@@ -3,6 +3,7 @@ import { isAxiosError } from "axios"
 import { toast } from 'react-toastify';
 import useLogin from '../hooks/useLogin';
 import { loadGoogleScript } from '../utils/loadGoogleScript';
+import { useTranslation } from 'react-i18next';
 
 declare global {
   interface Window {
@@ -18,6 +19,7 @@ declare global {
 }
 
 export default function GoogleSignInButton() {
+  const { t } = useTranslation()
   const buttonRef = useRef<HTMLDivElement>(null);
   const { doLogin } = useLogin()
 
@@ -31,7 +33,7 @@ export default function GoogleSignInButton() {
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
         callback: async (response) => {
           if (!response.credential) {
-            toast.error('Щось пішло не так...')
+            toast.error(t('auth.google.noCredential'))
             return
           }
 
@@ -41,7 +43,7 @@ export default function GoogleSignInButton() {
             })
           } catch (error: unknown){
             if(!isAxiosError(error)) {
-              toast.error('Невдалося авторизуватися з акаунтом Google')
+              toast.error(t('auth.google.error'))
               return
             }
             const messages = isAxiosError(error)
@@ -49,9 +51,9 @@ export default function GoogleSignInButton() {
               : undefined
             const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
             if (errorMessage?.includes('regular email/password for login')) {
-              toast.error('Скористайтеся звичайною авторизацією через логін/пароль.')
+              toast.error(t('auth.google.useLocalLogin'))
             } else {
-              toast.error('Невдалося авторизуватися з акаунтом Google')
+              toast.error(t('auth.google.error'))
             }
           }
         },
@@ -65,7 +67,7 @@ export default function GoogleSignInButton() {
     return () => {
       cancelled = true
     }
-  }, [doLogin]);
+  }, [doLogin, t]);
 
   return <div ref={buttonRef} />;
 }

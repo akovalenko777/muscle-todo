@@ -4,6 +4,7 @@ import { fetchData } from "../../utils/fetchHelper";
 import type { Tag } from "../../types/tag";
 import type { User } from "../../types/user";
 import { isAdminSelector, useAuthStore } from "../../store/authStore";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   onFilter: ({ search, tags, userId }: { search: string, tags: string[], userId: string | null }) => void
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ArchiveFilter({ onFilter, onReset }: Props) {
+  const { t } = useTranslation()
   const isAdmin = useAuthStore(isAdminSelector)
   const tags: Tag[] = use(fetchData('/tags') as Promise<Tag[]>)
   const users: User[] = isAdmin ? use(fetchData('/users') as Promise<User[]>) : []
@@ -41,7 +43,7 @@ export default function ArchiveFilter({ onFilter, onReset }: Props) {
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Пошук за назвою/описом"
+              placeholder={t('page.archive.searchPlaceholder')}
             />
           </Box>
           <Box sx={{ flexGrow: '1' }}>
@@ -62,7 +64,7 @@ export default function ArchiveFilter({ onFilter, onReset }: Props) {
                   />
                 ))
               }
-              renderInput={(params) => <TextField {...params} label="Теги" variant="outlined" />}
+              renderInput={(params) => <TextField {...params} label={t('common.tags')} variant="outlined" />}
             />
           </Box>
           {isAdmin && <Box sx={{ flexGrow: '1' }}>
@@ -76,12 +78,12 @@ export default function ArchiveFilter({ onFilter, onReset }: Props) {
                 const { id, key, ...optionProps } = props
                 return <Box component='li' key={id} {...optionProps}>{option.label}</Box>
               }}
-              renderInput={(params) => <TextField {...params} label="Виконавець" variant="outlined" />}
+              renderInput={(params) => <TextField {...params} label={t('common.assignee')} variant="outlined" />}
             />
           </Box>}
           <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Button variant='contained' color='primary' type='submit'>Фільтрувати</Button>
-            <Button variant='outlined' color='warning' type='reset' onClick={resetHandler}>Скинути</Button>
+            <Button variant='contained' color='primary' type='submit'>{t('common.filter')}</Button>
+            <Button variant='outlined' color='warning' type='reset' onClick={resetHandler}>{t('common.reset')}</Button>
           </Box>
         </Box>
       </form>

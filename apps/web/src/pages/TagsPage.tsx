@@ -10,6 +10,7 @@ import TagFormDialog from "../components/TagFormDialog";
 import DeleteDialog from "../components/DeleteDialog";
 import { isAxiosError } from "axios";
 import { invalidateCache } from "../utils/fetchHelper";
+import { useTranslation } from "react-i18next";
 
 export interface Tag {
   id: string
@@ -18,6 +19,7 @@ export interface Tag {
 }
 
 export default function TagsPage() {
+  const { t } = useTranslation()
   const [tags, setTags] = useState<Tag[]>([]);
   const [openAdd, setOpenAdd] = useState<boolean>(false);
   const [openConfirm, setOpenConfirm] = useState<boolean>(false);
@@ -34,18 +36,18 @@ export default function TagsPage() {
           setTags(response.data)
         }
       } catch {
-        toast.error('Помилка при отриманні списку тегів')
+        toast.error(t('page.tags.messages.getListError'))
       }
     }
     fetchTags()
-  }, [setTags])
+  }, [setTags, t])
 
   const handleEdit = (tag: Tag) => {
     setTagForEdit(tag)
   }
 
   const handleDelete = async (tagId: string, tagText: string) => {
-    setDeleteText(`Дійсно видалити тег "${tagText}"?`)
+    setDeleteText(t('page.tags.messages.confirmDelete', { tagText }))
     setOpenConfirm(true)
     tagIdForDelete.current = tagId
   }
@@ -59,12 +61,12 @@ export default function TagsPage() {
         setTags(updatedTags)
         tagIdForDelete.current = ''
         setOpenConfirm(false)
-        toast.success('Тег успішно видалено')
+        toast.success(t('page.tags.messages.deleteSuccess'))
         invalidateCache('/tags')
       }
     } catch (error: unknown) {
       if (!isAxiosError(error)) {
-        toast.error('Не вдалося видалити тег');
+        toast.error(t('page.tags.messages.deleteError'));
         return
       }
 
@@ -73,11 +75,11 @@ export default function TagsPage() {
         : undefined
       const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
       if (errorMessage?.includes('Forbidden resource')) {
-        toast.error('У вас немає прав для видалення тегу.')
+        toast.error(t('page.tags.messages.forbiddenDelete'))
       } else if (errorMessage?.includes('still assigned to tasks')) {
-        toast.error('Не можна видалити тег поки він прив\'язаний до задач(і).')
+        toast.error(t('page.tags.messages.assignedDelete'))
       } else {
-        toast.error('Не вдалося видалити тег');
+        toast.error(t('page.tags.messages.deleteError'));
       }
     }
   }
@@ -100,8 +102,8 @@ export default function TagsPage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Теги</h1>
-        <Button variant="contained" color="success" onClick={() => setOpenAdd(true)} startIcon={<AddCircleIcon />}>Додати тег</Button>
+        <h1>{t('page.tags.title')}</h1>
+        <Button variant="contained" color="success" onClick={() => setOpenAdd(true)} startIcon={<AddCircleIcon />}>{t('page.tags.addTag')}</Button>
       </Stack>
       <Paper sx={{ p: 2 }}>
         {tags.map((tag) => (
@@ -129,7 +131,7 @@ export default function TagsPage() {
       />
       <DeleteDialog
         open={openConfirm}
-        title="Видалення тега"
+        title={t('page.tags.deletingTag')}
         text={deleteText}
         onClose={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}

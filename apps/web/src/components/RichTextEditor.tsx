@@ -23,39 +23,41 @@ import {
   RichTextField,
 } from "mui-tiptap";
 import VoiceMenuButton from './VoiceMenuButton';
+import { useTranslation } from 'react-i18next'
 
 interface PropsEditor {
   editor: Editor | null
 }
 
 export default function RichTextEditor({ editor }: PropsEditor) {
+  const { t } = useTranslation()
   return <RichTextEditorProvider editor={editor}>
     <RichTextField
       controls={
         <MenuControlsContainer>
-          <MenuButtonUndo tooltipLabel='Відмінити' />
-          <MenuButtonRedo tooltipLabel='Повернути' />
+          <MenuButtonUndo tooltipLabel={t('editor.undo')} />
+          <MenuButtonRedo tooltipLabel={t('editor.redo')} />
           <MenuDivider />
-          <MenuSelectHeading tooltipTitle='Стиль тексту' />
+          <MenuSelectHeading tooltipTitle={t('editor.heading')} />
           <MenuDivider />
-          <MenuButtonBold tooltipLabel='Напівжирний' />
-          <MenuButtonItalic tooltipLabel='Курсив' />
-          <MenuButtonUnderline tooltipLabel='Підкреслений' />
-          <MenuButtonStrikethrough tooltipLabel='Закреслений' />
-          <MenuButtonTextColor tooltipLabel='Колір тексту' />
+          <MenuButtonBold tooltipLabel={t('editor.bold')} />
+          <MenuButtonItalic tooltipLabel={t('editor.italic')} />
+          <MenuButtonUnderline tooltipLabel={t('editor.underline')} />
+          <MenuButtonStrikethrough tooltipLabel={t('editor.strikethrough')} />
+          <MenuButtonTextColor tooltipLabel={t('editor.textColor')} />
           <MenuDivider />
-          <MenuButtonBulletedList tooltipLabel='Маркований список' />
-          <MenuButtonOrderedList tooltipLabel='Нумерований список' />
+          <MenuButtonBulletedList tooltipLabel={t('editor.bulletList')} />
+          <MenuButtonOrderedList tooltipLabel={t('editor.orderedList')} />
           <MenuDivider />
-          <MenuButtonHorizontalRule tooltipLabel='Горизорнтальний роздільний' />
+          <MenuButtonHorizontalRule tooltipLabel={t('editor.horizontalRule')} />
           <MenuBar>
-            <MenuButtonAlignLeft tooltipLabel='По лівому краю' />
-            <MenuButtonAlignCenter tooltipLabel='По центру' />
-            <MenuButtonAlignRight tooltipLabel='По правому краю' />
+            <MenuButtonAlignLeft tooltipLabel={t('editor.alignLeft')} />
+            <MenuButtonAlignCenter tooltipLabel={t('editor.alignCenter')} />
+            <MenuButtonAlignRight tooltipLabel={t('editor.alignRight')} />
           </MenuBar>
           <MenuDivider />
-          <MenuButtonCode tooltipLabel='Рядок коду' />
-          <MenuButtonCodeBlock tooltipLabel='Блок коду' />
+          <MenuButtonCode tooltipLabel={t('editor.code')} />
+          <MenuButtonCodeBlock tooltipLabel={t('editor.codeBlock')} />
           <VoiceMenuButton editor={editor} />
         </MenuControlsContainer>
       }

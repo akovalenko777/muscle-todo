@@ -38,7 +38,7 @@ export default function UserPage() {
       }
     }
     fetchUsers()
-  }, [isAdmin])
+  }, [isAdmin, t])
 
   const handleOpenAdd = () => {
     setOpenAdd(true)

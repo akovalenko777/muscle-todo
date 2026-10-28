@@ -1,26 +1,16 @@
+import i18n from 'i18next'
 import type { TaskStatus, TaskPriority } from '../types/task'
 
 export const STATUSES: TaskStatus[] = ['PLANNED', 'IN_PROGRESS', 'REVIEWED', 'DONE']
 
-export const STATUS_LABELS: Record<TaskStatus, string> = {
-  PLANNED: 'Заплановано',
-  IN_PROGRESS: 'В процесі',
-  REVIEWED: 'Перевірено',
-  DONE: 'Виконано',
-}
+export const PRIORITIES: TaskPriority[] = ['HIGHEST', 'HIGH', 'NORMAL', 'LOW', 'LOWEST']
 
-export const PRIORITY_LABELS: Record<TaskPriority, string> = {
-  HIGHEST: 'Найвищий',
-  HIGH: 'Високий',
-  NORMAL: 'Нормальний',
-  LOW: 'Низький',
-  LOWEST: 'Найнижчий',
-}
-
+// Labels are resolved at call time (not module load) so they follow the current language;
+// callers render inside components that use useTranslation(), which re-render on language change.
 export function getStatusLabel(status: TaskStatus): string {
-  return STATUS_LABELS[status]
+  return i18n.t(`task.status.${status}`)
 }
 
 export function getPriorityLabel(priority: TaskPriority): string {
-  return PRIORITY_LABELS[priority]
+  return i18n.t(`task.priority.${priority}`)
 }

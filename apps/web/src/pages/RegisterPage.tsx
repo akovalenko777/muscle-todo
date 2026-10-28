@@ -6,8 +6,10 @@ import api from "../api/axios"
 import useLogin from "../hooks/useLogin"
 import { Link } from "react-router-dom"
 import type { RegisterValues } from "../types/user"
+import { useTranslation } from "react-i18next"
 
 export default function RegisterPage() {
+  const { t } = useTranslation()
   const { doLogin } = useLogin()
   const [values, setValues] = useState<RegisterValues>({
     email: '',
@@ -22,7 +24,7 @@ export default function RegisterPage() {
   const submitHandler = async (e: SyntheticEvent) => {
     e.preventDefault()
     if (values.password !== values.password_repeat) {
-      toast.error('Пароль та підтвердження паролю не співпадають.')
+      toast.error(t('auth.register.passwordMismatch'))
       return
     }
 
@@ -35,7 +37,7 @@ export default function RegisterPage() {
       }
     } catch (error: unknown) {
       if (!isAxiosError(error)) {
-        toast.error('Не вдалося зареєструватися. Спробуйте ще раз.')
+        toast.error(t('auth.register.registerError'))
         return
       }
 
@@ -47,15 +49,15 @@ export default function RegisterPage() {
         const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
 
         if (errorMessage?.includes('email already exists')) {
-          toast.error('Користувач з таким email вже існує.')
+          toast.error(t('page.users.messages.emailExists'))
         } else if (errorMessage?.includes('password is not strong enough')) {
-          toast.error('Пароль недостатньо надійний.')
+          toast.error(t('page.users.messages.weakPassword'))
         } else {
-          toast.error('Не вдалося зареєструватися. Спробуйте ще раз.')
+          toast.error(t('auth.register.registerError'))
         }
       }
       if (originalRequest?.url === '/auth/login') {
-        toast.error('Не вдалося авторизувати нового користувача.')
+        toast.error(t('auth.register.loginError'))
       }
     }
   }
@@ -64,13 +66,13 @@ export default function RegisterPage() {
       <Card sx={{ minWidth: '300px', p: 2 }}>
         <CardContent>
           <Typography variant="h5" component="div" gutterBottom sx={{ textAlign: 'center' }}>
-            Реєстрація
+            {t('auth.register.title')}
           </Typography>
           <form onSubmit={submitHandler} id="register-form">
             <Stack spacing={2}>
               <TextField
                 id="register-name"
-                label="Ім'я"
+                label={t('common.name')}
                 variant="standard"
                 name="name"
                 value={values.name}
@@ -78,7 +80,7 @@ export default function RegisterPage() {
               />
               <TextField
                 id="register-email"
-                label="Email"
+                label={t('common.email')}
                 variant="standard"
                 name="email"
                 value={values.email}
@@ -86,7 +88,7 @@ export default function RegisterPage() {
               />
               <TextField
                 id="register-pass"
-                label="Пароль"
+                label={t('common.password')}
                 variant="standard"
                 type="password"
                 name="password"
@@ -95,7 +97,7 @@ export default function RegisterPage() {
               />
               <TextField
                 id="register-pass-repeat"
-                label="Пароль ще раз"
+                label={t('common.passwordRepeat')}
                 variant="standard"
                 type="password"
                 name="password_repeat"
@@ -106,8 +108,8 @@ export default function RegisterPage() {
           </form>
         </CardContent>
         <CardActions sx={{ justifyContent: 'center', flexDirection: 'column', gap: 2, mt: 2 }}>
-          <Button variant="contained" type="submit" form="register-form">Зареєструватися</Button>
-          <Button component={Link} to="/login" variant="text">або увійти, якщо є акаунт</Button>
+          <Button variant="contained" type="submit" form="register-form">{t('common.register')}</Button>
+          <Button component={Link} to="/login" variant="text">{t('auth.register.orLogin')}</Button>
         </CardActions>
       </Card>
     </div>

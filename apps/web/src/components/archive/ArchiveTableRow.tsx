@@ -3,6 +3,7 @@ import type { Task, TaskTag } from "../../types/task";
 import { formatDate } from "../../utils/functions";
 import { getPriorityLabel } from "../../constants/taskLabels";
 import FaceIcon from '@mui/icons-material/Face';
+import { useTranslation } from "react-i18next";
 
 interface Props {
   num: number,
@@ -11,6 +12,7 @@ interface Props {
   isAdmin: boolean
 }
 export default function ArchiveTableRow({ num, task, onDetail, isAdmin }: Props){
+  const { t } = useTranslation()
 
   return (
     <TableRow>
@@ -27,7 +29,7 @@ export default function ArchiveTableRow({ num, task, onDetail, isAdmin }: Props)
       {isAdmin ? <TableCell>
         {task.assigneeId
             ? <Chip icon={<FaceIcon />} size="small" label={task.assignee?.name} />
-            : <i>Не прив'язана</i>
+            : <i>{t('page.archive.notAssigned')}</i>
           }
       </TableCell> : null}
       <TableCell>

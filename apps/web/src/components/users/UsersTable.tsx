@@ -2,6 +2,7 @@ import { Box, Table, TableBody, TableCell, TableContainer, TableFooter, TableHea
 import type { User } from "../../types/user"
 import UserTableRow from "./UserTableRow"
 import { useMemo, useState, type SyntheticEvent } from "react"
+import { useTranslation } from "react-i18next"
 
 interface Props {
   users: User[]
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function UsersTable({ users, currentUser, onEdit, onDelete, onChangeRole }: Props) {
+  const { t } = useTranslation()
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
   const [page, setPage] = useState<number>(0)
   const [search, setSearch] = useState<string>('')
@@ -38,14 +40,14 @@ export default function UsersTable({ users, currentUser, onEdit, onDelete, onCha
     const filteredCount = visibleUsers.filtered.length
     const showCount = filteredCount !== count ? filteredCount : count
     const showTo = to > showCount ? showCount : to
-    return `${from}–${showTo} з ${showCount !== -1 ? showCount : `більш ніж ${showTo}`}`
+    return t('common.pagination.displayedRows', { from, to: showTo, total: showCount !== -1 ? showCount : t('common.pagination.moreThan', { to: showTo }) })
   }
 
   return (
     <>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         <TextField
-          label="Пошук за ім'ям або email"
+          label={t('page.users.searchPlaceholder')}
           variant="standard"
           value={search}
           onChange={handleSearch}
@@ -56,32 +58,32 @@ export default function UsersTable({ users, currentUser, onEdit, onDelete, onCha
           <TableHead>
             <TableRow>
               <TableCell>
-                Email
+                {t('common.email')}
               </TableCell>
               <TableCell>
-                Ім'я
+                {t('common.name')}
               </TableCell>
               <TableCell align="center">
-                Роль
+                {t('common.role')}
               </TableCell>
               <TableCell align="right">
-                Дії
+                {t('common.actions')}
               </TableCell>
             </TableRow>
           </TableHead>
           <TableFooter>
             <TableRow>
               <TableCell>
-                Email
+                {t('common.email')}
               </TableCell>
               <TableCell>
-                Ім'я
+                {t('common.name')}
               </TableCell>
               <TableCell align="center">
-                Роль
+                {t('common.role')}
               </TableCell>
               <TableCell align="right">
-                Дії
+                {t('common.actions')}
               </TableCell>
             </TableRow>
           </TableFooter>
@@ -98,9 +100,9 @@ export default function UsersTable({ users, currentUser, onEdit, onDelete, onCha
         </Table>
       </TableContainer>
       <TablePagination
-        labelRowsPerPage="Рядків на сторінці"
+        labelRowsPerPage={t('common.pagination.rowsPerPage')}
         labelDisplayedRows={showDisplayedRows}
-        rowsPerPageOptions={[5, 10, 25, { value: -1, label: 'Всі' }]}
+        rowsPerPageOptions={[5, 10, 25, { value: -1, label: t('common.pagination.all') }]}
         component="div"
         count={visibleUsers.filtered.length}
         rowsPerPage={rowsPerPage}

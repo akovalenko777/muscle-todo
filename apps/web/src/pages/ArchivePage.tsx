@@ -7,6 +7,7 @@ import type { Task } from "../types/task";
 import ArchiveFilter from "../components/archive/ArchiveFilter";
 import TaskViewDialog from "../components/TaskViewDialog";
 import { useTasksStore } from "../store/tasksStore";
+import { useTranslation } from "react-i18next";
 
 export interface Tag {
   id: string
@@ -15,6 +16,7 @@ export interface Tag {
 }
 
 export default function ArchivePage() {
+  const { t } = useTranslation()
   const [tasks, setTasks] = useState<Task[]>([])
   const [total, setTotal] = useState<number>(0)
   const [page, setPage] = useState<number>(0)
@@ -38,12 +40,12 @@ export default function ArchivePage() {
           setTotal(response.data.count)
         }
       } catch {
-        toast.error('Помилка при отриманні списку архівних задач')
+        toast.error(t('page.archive.messages.getListError'))
       }
     }
 
     fetchTasks()
-  }, [page, pageSize, search, userId, tags])
+  }, [page, pageSize, search, userId, tags, t])
 
   const pageChangeHandler = (newPage: number) => {
     setPage(newPage)
@@ -77,14 +79,14 @@ export default function ArchivePage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Архівні задачі</h1>
+        <h1>{t('page.archive.title')}</h1>
       </Stack>
       <ArchiveFilter onFilter={filterHandler} onReset={resetHandler} />
       <Paper sx={{ p: 2 }}>
         <ArchiveTable page={page} pageSize={pageSize} tasks={tasks} onDetail={detailHandler} />
         <TablePagination
-          labelRowsPerPage="Рядків на сторінці"
-          labelDisplayedRows={({ from, to, count }: { from: number, to: number, count: number }) => `${from}–${to} з ${count !== -1 ? count : `більш ніж ${to}`}`}
+          labelRowsPerPage={t('common.pagination.rowsPerPage')}
+          labelDisplayedRows={({ from, to, count }: { from: number, to: number, count: number }) => t('common.pagination.displayedRows', { from, to, total: count !== -1 ? count : t('common.pagination.moreThan', { to }) })}
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
           count={total}

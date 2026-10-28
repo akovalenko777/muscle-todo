@@ -3,11 +3,130 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "apply": "Apply",
+    "send": "Submit",
+    "filter": "Filter",
+    "reset": "Reset",
     "name": "Name",
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "passwordRepeat": "Repeat password",
+    "role": "Role",
+    "actions": "Actions",
+    "status": "Status",
+    "priority": "Priority",
+    "assignee": "Assignee",
+    "tags": "Tags",
+    "login": "Log in",
+    "register": "Sign up",
+    "pagination": {
+      "rowsPerPage": "Rows per page",
+      "all": "All",
+      "displayedRows": "{{from}}–{{to}} of {{total}}",
+      "moreThan": "more than {{to}}"
+    }
+  },
+  "nav": {
+    "board": "Board",
+    "tags": "Tags",
+    "archive": "Archive",
+    "users": "Users",
+    "profile": "Profile",
+    "logout": "Log out",
+    "today": "Today {{date}}"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "orRegister": "or sign up",
+      "invalidCredentials": "Invalid email or password."
+    },
+    "register": {
+      "title": "Sign up",
+      "orLogin": "or log in if you already have an account",
+      "passwordMismatch": "Password and confirmation do not match.",
+      "registerError": "Unable to sign up. Please try again.",
+      "loginError": "Unable to log in the new user."
+    },
+    "google": {
+      "noCredential": "Something went wrong...",
+      "error": "Unable to log in with Google account",
+      "useLocalLogin": "Please log in with your email and password."
+    }
   },
   "page": {
+    "index": {
+      "welcome": "Welcome to the Kanban board :)",
+      "orGoogle": "or use your Google account"
+    },
+    "restricted": {
+      "title": "Access denied",
+      "message": "You don't have permission to view this page",
+      "backToBoard": "Back to board"
+    },
+    "board": {
+      "title": "Task board",
+      "addTask": "Add task",
+      "deletingTask": "Deleting task",
+      "emptyColumn": "No tasks here yet",
+      "messages": {
+        "getListError": "An error occurred while retrieving tasks",
+        "confirmDelete": "Delete task \"{{title}}\"?",
+        "deleteError": "Unable to delete task. Please try again."
+      }
+    },
+    "tags": {
+      "title": "Tags",
+      "addTag": "Add tag",
+      "editTag": "Edit tag",
+      "newTag": "New tag",
+      "tagText": "Tag name",
+      "tagColor": "Tag color",
+      "deletingTag": "Deleting tag",
+      "messages": {
+        "getListError": "An error occurred while retrieving the tags list",
+        "confirmDelete": "Are you sure you want to delete tag \"{{tagText}}\"?",
+        "deleteSuccess": "Tag successfully deleted",
+        "deleteError": "Unable to delete tag",
+        "forbiddenDelete": "You don't have permission to delete this tag.",
+        "assignedDelete": "Unable to delete a tag while it is assigned to tasks.",
+        "updateSuccess": "Tag updated",
+        "createSuccess": "Tag added",
+        "saveError": "Unable to save tag",
+        "textExists": "A tag with this name already exists.",
+        "invalidColor": "Invalid color value."
+      }
+    },
+    "archive": {
+      "title": "Archived tasks",
+      "searchPlaceholder": "Search by title/description",
+      "created": "Created",
+      "taskTitle": "Title",
+      "notAssigned": "Unassigned",
+      "messages": {
+        "getListError": "An error occurred while retrieving archived tasks"
+      }
+    },
+    "profile": {
+      "title": "User profile",
+      "editProfile": "Edit profile",
+      "changePassword": "Change password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "newPasswordRepeat": "Repeat new password",
+      "messages": {
+        "updateSuccess": "Profile successfully updated",
+        "saveError": "Unable to save profile",
+        "weakPassword": "New password is not strong enough",
+        "weakPasswordServer": "New password is not strong enough.",
+        "passwordMismatch": "New password and confirmation do not match",
+        "passwordSuccess": "Password successfully changed",
+        "passwordError": "Unable to change password",
+        "invalidCurrentPassword": "Invalid current password."
+      }
+    },
     "users": {
       "title": "Users",
       "addUser": "Add User",
@@ -15,6 +134,7 @@
       "searchPlaceholder": "Search by name or email",
       "genPassword": "Generate password",
       "deletingUser": "Deleting User",
+      "changeRole": "Change role",
       "messages": {
         "getListError": "An error occurred while retrieving the users list",
         "confirmDelete": "Are you sure you want to delete user \"{{userName}}\"?",
@@ -31,5 +151,59 @@
         "addError": "Unable to add user. Please try again."
       }
     }
+  },
+  "task": {
+    "editTask": "Edit task",
+    "newTask": "New task",
+    "taskTitle": "Task title",
+    "created": "Created",
+    "updated": "Updated",
+    "claim": "Claim",
+    "claimTooltip": "Assign task to myself",
+    "unlinkTooltip": "Unassign task",
+    "deleteTooltip": "Delete task",
+    "status": {
+      "PLANNED": "Planned",
+      "IN_PROGRESS": "In progress",
+      "REVIEWED": "Reviewed",
+      "DONE": "Done"
+    },
+    "priority": {
+      "HIGHEST": "Highest",
+      "HIGH": "High",
+      "NORMAL": "Normal",
+      "LOW": "Low",
+      "LOWEST": "Lowest"
+    },
+    "messages": {
+      "claimSuccess": "Task successfully assigned",
+      "claimError": "Unable to assign task",
+      "unlinkSuccess": "Task successfully unassigned",
+      "unlinkError": "Unable to unassign task",
+      "descriptionRequired": "Please fill in the task description",
+      "updateSuccess": "Task updated",
+      "createSuccess": "Task added",
+      "conflict": "The task has changed or is no longer assigned to you",
+      "saveError": "Unable to save task"
+    }
+  },
+  "editor": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "heading": "Text style",
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "strikethrough": "Strikethrough",
+    "textColor": "Text color",
+    "bulletList": "Bulleted list",
+    "orderedList": "Numbered list",
+    "horizontalRule": "Horizontal rule",
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+    "code": "Inline code",
+    "codeBlock": "Code block",
+    "voice": "Voice input"
   }
 }

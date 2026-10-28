@@ -3,11 +3,130 @@
     "save": "Зберегти",
     "cancel": "Скасувати",
     "delete": "Видалити",
+    "edit": "Редагувати",
+    "close": "Закрити",
+    "apply": "Застосувати",
+    "send": "Відправити",
+    "filter": "Фільтрувати",
+    "reset": "Скинути",
     "name": "Ім'я",
     "email": "Email",
-    "password": "Пароль"
+    "password": "Пароль",
+    "passwordRepeat": "Пароль ще раз",
+    "role": "Роль",
+    "actions": "Дії",
+    "status": "Статус",
+    "priority": "Пріоритет",
+    "assignee": "Виконавець",
+    "tags": "Теги",
+    "login": "Увійти",
+    "register": "Зареєструватися",
+    "pagination": {
+      "rowsPerPage": "Рядків на сторінці",
+      "all": "Всі",
+      "displayedRows": "{{from}}–{{to}} з {{total}}",
+      "moreThan": "більш ніж {{to}}"
+    }
+  },
+  "nav": {
+    "board": "Дошка",
+    "tags": "Теги",
+    "archive": "Архів",
+    "users": "Користувачі",
+    "profile": "Профіль",
+    "logout": "Вийти",
+    "today": "Сьогодні {{date}}"
+  },
+  "auth": {
+    "login": {
+      "title": "Авторизація",
+      "orRegister": "або зареєструйтися",
+      "invalidCredentials": "Невірний email або пароль."
+    },
+    "register": {
+      "title": "Реєстрація",
+      "orLogin": "або увійти, якщо є акаунт",
+      "passwordMismatch": "Пароль та підтвердження паролю не співпадають.",
+      "registerError": "Не вдалося зареєструватися. Спробуйте ще раз.",
+      "loginError": "Не вдалося авторизувати нового користувача."
+    },
+    "google": {
+      "noCredential": "Щось пішло не так...",
+      "error": "Невдалося авторизуватися з акаунтом Google",
+      "useLocalLogin": "Скористайтеся звичайною авторизацією через логін/пароль."
+    }
   },
   "page": {
+    "index": {
+      "welcome": "Велком до канбан дошки :)",
+      "orGoogle": "або використати свій обліковий запис Google"
+    },
+    "restricted": {
+      "title": "Немає доступу",
+      "message": "У вас немає достатньо прав для перегляду цієї сторінки",
+      "backToBoard": "Повернутися до дошки"
+    },
+    "board": {
+      "title": "Дошка задач",
+      "addTask": "Додати задачу",
+      "deletingTask": "Видалення задачі",
+      "emptyColumn": "Тут поки немає задач",
+      "messages": {
+        "getListError": "Сталася помилка при отриманні задач",
+        "confirmDelete": "Видалити задачу \"{{title}}\"?.",
+        "deleteError": "Невдалося видалити задачу. Спробуйте ще раз."
+      }
+    },
+    "tags": {
+      "title": "Теги",
+      "addTag": "Додати тег",
+      "editTag": "Редагувати тег",
+      "newTag": "Новий тег",
+      "tagText": "Назва тегу",
+      "tagColor": "Колір тегу",
+      "deletingTag": "Видалення тега",
+      "messages": {
+        "getListError": "Помилка при отриманні списку тегів",
+        "confirmDelete": "Дійсно видалити тег \"{{tagText}}\"?",
+        "deleteSuccess": "Тег успішно видалено",
+        "deleteError": "Не вдалося видалити тег",
+        "forbiddenDelete": "У вас немає прав для видалення тегу.",
+        "assignedDelete": "Не можна видалити тег поки він прив'язаний до задач(і).",
+        "updateSuccess": "Тег змінено",
+        "createSuccess": "Тег додано",
+        "saveError": "Не вдалося зберегти тег",
+        "textExists": "Тег з таким текстом вже існує.",
+        "invalidColor": "Некоректне значення кольору."
+      }
+    },
+    "archive": {
+      "title": "Архівні задачі",
+      "searchPlaceholder": "Пошук за назвою/описом",
+      "created": "Створено",
+      "taskTitle": "Назва",
+      "notAssigned": "Не прив'язана",
+      "messages": {
+        "getListError": "Помилка при отриманні списку архівних задач"
+      }
+    },
+    "profile": {
+      "title": "Профіль користувача",
+      "editProfile": "Змінити дані профілю",
+      "changePassword": "Змінити пароль",
+      "currentPassword": "Поточний пароль",
+      "newPassword": "Новий пароль",
+      "newPasswordRepeat": "Новий пароль ще раз",
+      "messages": {
+        "updateSuccess": "Профіль успішно оновлено",
+        "saveError": "Не вдалося зберегти профіль",
+        "weakPassword": "Новий пароль не достатньо надійний",
+        "weakPasswordServer": "Новий пароль не достатньо надійний.",
+        "passwordMismatch": "Новий пароль та підтвердження не співпадають",
+        "passwordSuccess": "Пароль успішно змінено",
+        "passwordError": "Не вдалося змінити пароль",
+        "invalidCurrentPassword": "Невірний поточний пароль."
+      }
+    },
     "users": {
       "title": "Користувачі",
       "addUser": "Додати користувача",
@@ -15,6 +134,7 @@
       "searchPlaceholder": "Пошук за ім'ям або email",
       "genPassword": "Сгенерувати пароль",
       "deletingUser": "Видалення користувача",
+      "changeRole": "Змінити роль",
       "messages": {
         "getListError": "Помилка при отриманні списку користувачів",
         "confirmDelete": "Дійсно видалити користувача \"{{userName}}\"?",
@@ -31,5 +151,59 @@
         "addError": "Не вдалося додати. Спробуйте ще раз."
       }
     }
+  },
+  "task": {
+    "editTask": "Редагувати задачу",
+    "newTask": "Нова задача",
+    "taskTitle": "Назва задачі",
+    "created": "Створена",
+    "updated": "Змінена",
+    "claim": "Прив'язати",
+    "claimTooltip": "Прив'язати задачу на себе",
+    "unlinkTooltip": "Відв'язати задачу",
+    "deleteTooltip": "Видалити задачу",
+    "status": {
+      "PLANNED": "Заплановано",
+      "IN_PROGRESS": "В процесі",
+      "REVIEWED": "Перевірено",
+      "DONE": "Виконано"
+    },
+    "priority": {
+      "HIGHEST": "Найвищий",
+      "HIGH": "Високий",
+      "NORMAL": "Нормальний",
+      "LOW": "Низький",
+      "LOWEST": "Найнижчий"
+    },
+    "messages": {
+      "claimSuccess": "Задача успішно прив'язана",
+      "claimError": "Невдалося прив'язати задачу",
+      "unlinkSuccess": "Задача успішно відв'язана",
+      "unlinkError": "Невдалося відв'язати задачу",
+      "descriptionRequired": "Заповніть опис задачі",
+      "updateSuccess": "Задачу змінено",
+      "createSuccess": "Задачу додано",
+      "conflict": "Задача змінилась або більше вам не належить",
+      "saveError": "Не вдалося зберегти задачу"
+    }
+  },
+  "editor": {
+    "undo": "Відмінити",
+    "redo": "Повернути",
+    "heading": "Стиль тексту",
+    "bold": "Напівжирний",
+    "italic": "Курсив",
+    "underline": "Підкреслений",
+    "strikethrough": "Закреслений",
+    "textColor": "Колір тексту",
+    "bulletList": "Маркований список",
+    "orderedList": "Нумерований список",
+    "horizontalRule": "Горизорнтальний роздільний",
+    "alignLeft": "По лівому краю",
+    "alignCenter": "По центру",
+    "alignRight": "По правому краю",
+    "code": "Рядок коду",
+    "codeBlock": "Блок коду",
+    "voice": "Голосове введення"
   }
 }

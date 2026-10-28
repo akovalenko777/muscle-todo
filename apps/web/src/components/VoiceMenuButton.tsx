@@ -4,12 +4,14 @@ import MicOffIcon from '@mui/icons-material/MicOff';
 import { MenuButton, MenuDivider } from 'mui-tiptap';
 import type { Editor } from '@tiptap/react';
 import { type SyntheticEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface IProps {
   editor: Editor | null
 }
 
 export default function VoiceMenuButton({ editor }: IProps) {
+  const { t } = useTranslation()
   const { isListening, startListening, stopListening, isSupported } = useSpeechToText({ onEnd: (str: string) => {
     if (!str.trim() || !editor) return
 
@@ -31,7 +33,7 @@ export default function VoiceMenuButton({ editor }: IProps) {
     <>
       <MenuDivider />
       <MenuButton
-        tooltipLabel='Голосове введення'
+        tooltipLabel={t('editor.voice')}
         onPointerDown={handleStartListening}
         onPointerUp={() => stopListening()}
         onPointerCancel={() => stopListening()}

@@ -15,12 +15,14 @@ import { toast } from 'react-toastify';
 import { formatDate } from '../utils/functions';
 import { useTaskPermissions } from '../hooks/useTaskPermissions';
 import { getPriorityLabel } from '../constants/taskLabels';
+import { useTranslation } from 'react-i18next';
 
 interface TaskCardProps {
   task: Task;
 }
 
 export default function TaskCard({ task }: TaskCardProps) {
+  const { t } = useTranslation()
   const { setTaskForEdit, setTaskForDelete, updateTask, setTaskForView } = useTasksStore()
   const { canClaim, canReset, canEdit, canDelete } = useTaskPermissions(task)
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -59,10 +61,10 @@ export default function TaskCard({ task }: TaskCardProps) {
       const response: AxiosResponse = await api.patch(`/tasks/${taskId}/claim`)
       if (response.status === 200) {
         updateTask(response.data)
-        toast.success('Задача успішно прив\'язана')
+        toast.success(t('task.messages.claimSuccess'))
       }
     } catch {
-      toast.error('Невдалося прив\'язати задачу')
+      toast.error(t('task.messages.claimError'))
     }
   }
 
@@ -72,10 +74,10 @@ export default function TaskCard({ task }: TaskCardProps) {
       const response: AxiosResponse = await api.patch(`/tasks/${taskId}/reset`)
       if (response.status === 200) {
         updateTask(response.data)
-        toast.success('Задача успішно відв\'язана')
+        toast.success(t('task.messages.unlinkSuccess'))
       }
     } catch {
-      toast.error('Невдалося відв\'язати задачу')
+      toast.error(t('task.messages.unlinkError'))
     }
   }
 
@@ -114,7 +116,7 @@ export default function TaskCard({ task }: TaskCardProps) {
             </Box>)}
           </Box>
           <Box sx={{ borderLeft: '1px solid #2A2E3A', display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: '#14161C' }}>
-            { canReset && (<Tooltip title="Відв'язати задачу">
+            { canReset && (<Tooltip title={t('task.unlinkTooltip')}>
               <IconButton
                 aria-label="unlink"
                 color="success"
@@ -125,7 +127,7 @@ export default function TaskCard({ task }: TaskCardProps) {
                 <LinkOffIcon fontSize='inherit' />
               </IconButton>
             </Tooltip>)}
-            { canClaim && (<Tooltip title="Прив'язати задачу на себе">
+            { canClaim && (<Tooltip title={t('task.claimTooltip')}>
               <IconButton
                 aria-label="unlink"
                 color="success"
@@ -138,7 +140,7 @@ export default function TaskCard({ task }: TaskCardProps) {
             </Tooltip>
             )}
             { canEdit && (
-              <Tooltip title="Редагувати задачу">
+              <Tooltip title={t('task.editTask')}>
                 <IconButton
                   color="info"
                   size="small"
@@ -150,7 +152,7 @@ export default function TaskCard({ task }: TaskCardProps) {
             )}
             {canDelete && (<>
               <Box sx={{ flexGrow: 1 }}></Box>
-              <Tooltip title="Видалити задачу">
+              <Tooltip title={t('task.deleteTooltip')}>
                 <IconButton
                   aria-label="delete"
                   color="error"

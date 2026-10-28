@@ -5,8 +5,10 @@ import type { AxiosResponse } from "axios";
 import Loader from "../Loader";
 import { toast } from "react-toastify";
 import api from "../../api/axios";
+import { useTranslation } from "react-i18next";
 
 export default function UserProfileForm() {
+  const { t } = useTranslation()
   const { user, updateUser } = useAuthStore()
   const [isDisabled, setDisabled] = useState<boolean>(false)
   const [values, setValues] = useState({
@@ -24,13 +26,13 @@ export default function UserProfileForm() {
     try {
       const response: AxiosResponse = await api.patch('/users/me', values)
       if(response.status === 200){
-        toast.success('Профіль успішно оновлено')
+        toast.success(t('page.profile.messages.updateSuccess'))
         updateUser(response.data)
       } else {
-        toast.error('Не вдалося зберегти профіль')
+        toast.error(t('page.profile.messages.saveError'))
       }
     } catch {
-      toast.error('Не вдалося зберегти профіль')
+      toast.error(t('page.profile.messages.saveError'))
     } finally {
       setDisabled(false)
     }
@@ -41,12 +43,12 @@ export default function UserProfileForm() {
     {isDisabled && <Loader />}
     <Paper>
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Змінити дані профілю</Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>{t('page.profile.editProfile')}</Typography>
         <form onSubmit={submitHandler} id="profile-form">
           <Stack spacing={2}>
             <TextField
               id="profile-email"
-              label="Email"
+              label={t('common.email')}
               variant="standard"
               required
               type="email"
@@ -56,7 +58,7 @@ export default function UserProfileForm() {
             />
             <TextField
               id="profile-name"
-              label="Ім'я"
+              label={t('common.name')}
               variant="standard"
               required
               type="text"
@@ -66,7 +68,7 @@ export default function UserProfileForm() {
             />
           </Stack>
           <Box sx={{ textAlign: 'right', mt: 3 }}>
-            <Button variant="contained" type="submit" disabled={isDisabled}>Зберегти</Button>
+            <Button variant="contained" type="submit" disabled={isDisabled}>{t('common.save')}</Button>
           </Box>
         </form>
       </Box>

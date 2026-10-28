@@ -4,6 +4,7 @@ import api from '../api/axios';
 import type { Tag } from '../types/tag';
 import { toast } from 'react-toastify';
 import { isAxiosError, type AxiosResponse } from 'axios';
+import { useTranslation } from 'react-i18next';
 
 interface TagFormDialogProps {
   open: boolean;
@@ -15,6 +16,7 @@ interface TagFormDialogProps {
 const defaultColor = '#000000'
 
 export default function TagFormDialog({ open, tag, onClose, onSuccess }: TagFormDialogProps) {
+  const { t } = useTranslation()
   const [text, setText] = useState<string>(tag?.text || '');
   const [color, setColor] = useState<string>(tag?.color || defaultColor);
   
@@ -25,18 +27,18 @@ export default function TagFormDialog({ open, tag, onClose, onSuccess }: TagForm
       if (tag) {
         const updateResponse: AxiosResponse = await api.patch('/tags/'+tag.id, dataToSave)
         onSuccess(updateResponse.data)
-        toast.success('Тег змінено')
+        toast.success(t('page.tags.messages.updateSuccess'))
       } else {
         const createResponse: AxiosResponse = await api.post('/tags', dataToSave)
         onSuccess(createResponse.data)
-        toast.success('Тег додано')
+        toast.success(t('page.tags.messages.createSuccess'))
       }
       setText('')
       setColor(defaultColor)
       onClose()
     } catch(error: unknown) {
       if (!isAxiosError(error)) {
-        toast.error('Не вдалося зберегти тег');
+        toast.error(t('page.tags.messages.saveError'));
         return
       }
       const messages = isAxiosError(error)
@@ -44,24 +46,24 @@ export default function TagFormDialog({ open, tag, onClose, onSuccess }: TagForm
           : undefined
       const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
       if (errorMessage?.includes('already exists')) {
-        toast.error('Тег з таким текстом вже існує.')
+        toast.error(t('page.tags.messages.textExists'))
       } else if (errorMessage?.includes('color must be a valid hex color')) {
-        toast.error('Некоректне значення кольору.')
+        toast.error(t('page.tags.messages.invalidColor'))
       } else {
-        toast.error('Не вдалося зберегти тег');
+        toast.error(t('page.tags.messages.saveError'));
       }
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{tag ? 'Редагувати тег' : 'Новий тег'}</DialogTitle>
+      <DialogTitle>{tag ? t('page.tags.editTag') : t('page.tags.newTag')}</DialogTitle>
       <DialogContent>
         <form id="tag-form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
               id="tag-text"
-              label="Назва тегу"
+              label={t('page.tags.tagText')}
               variant="standard"
               value={text}
               required
@@ -70,7 +72,7 @@ export default function TagFormDialog({ open, tag, onClose, onSuccess }: TagForm
             <TextField
               type="color"
               id="tag-color"
-              label="Колір тегу"
+              label={t('page.tags.tagColor')}
               variant="standard"
               value={color}
               required
@@ -80,8 +82,8 @@ export default function TagFormDialog({ open, tag, onClose, onSuccess }: TagForm
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Скасувати</Button>
-        <Button variant="contained" type="submit" form="tag-form">Зберегти</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button variant="contained" type="submit" form="tag-form">{t('common.save')}</Button>
       </DialogActions>
     </Dialog>
   );

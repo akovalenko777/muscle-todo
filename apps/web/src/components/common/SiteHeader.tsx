@@ -2,9 +2,11 @@ import { Box, Toolbar } from "@mui/material";
 import { Link } from "react-router-dom";
 import Logo from './../../assets/logo.svg';
 import UserPopper from "./UserPopper";
+import { useTranslation } from "react-i18next";
 
 
 export default function SiteHeader() {
+  const { t } = useTranslation()
   const formatCurrentDate = (): string => {
     const d = new Date()
     const z = (n: number) => n < 10 ? '0' + n : '' + n
@@ -19,7 +21,7 @@ export default function SiteHeader() {
         </Link>
       </Box>
       <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 5 }}>
-        <div>Сьогодні {formatCurrentDate()}</div>
+        <div>{t('nav.today', { date: formatCurrentDate() })}</div>
         <div>
           <UserPopper />
         </div>

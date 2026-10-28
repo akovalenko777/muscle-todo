@@ -13,8 +13,10 @@ import DeleteDialog from '../components/DeleteDialog';
 import Loader from '../components/Loader';
 import TaskViewDialog from '../components/TaskViewDialog';
 import { getStatusLabel, STATUSES } from '../constants/taskLabels';
+import { useTranslation } from 'react-i18next';
 
 export default function BoardPage() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState<boolean>(false)
   const [session, setSession] = useState<number>(0)
   const { tasks, taskForEdit, taskForDelete, setTasks, updateTaskStatus, setTaskForEdit, setTaskForDelete, deleteTask } = useTasksStore();
@@ -24,7 +26,7 @@ export default function BoardPage() {
 
     const taskId = event.active.id as string
     const newStatus = event.over.id as TaskStatus
-    const task = tasks.find((t) => t.id === taskId)
+    const task = tasks.find((el) => el.id === taskId)
     if (task && task.status !== newStatus) {
       updateTaskStatus(taskId, newStatus)
     }
@@ -53,7 +55,7 @@ export default function BoardPage() {
         handleCloseConfirm()
       }
     } catch {
-      toast.error('Невдалося видалити задачу. Спробуйте ще раз.')
+      toast.error(t('page.board.messages.deleteError'))
     }
   }
 
@@ -65,11 +67,11 @@ export default function BoardPage() {
           setTasks(response.data)
         }
       } catch {
-        toast.error('Сталася помилка при отриманні задач')
+        toast.error(t('page.board.messages.getListError'))
       }
     }
     fetchTasks()
-  }, [setTasks]);
+  }, [setTasks, t]);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 5 }
@@ -88,8 +90,8 @@ export default function BoardPage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Дошка задач</h1>
-        <Button variant="contained" color="success" onClick={handleAddTask} startIcon={<AddCircleIcon />}>Додати задачу</Button>
+        <h1>{t('page.board.title')}</h1>
+        <Button variant="contained" color="success" onClick={handleAddTask} startIcon={<AddCircleIcon />}>{t('page.board.addTask')}</Button>
       </Stack>
       <Suspense fallback={<Loader />}>
         <TaskFormDialog key={`${taskForEdit?.id ?? 'new'}-${session}`} open={open || taskForEdit !== null} onClose={handleDialogClose} task={taskForEdit} />
@@ -108,8 +110,8 @@ export default function BoardPage() {
       </DndContext>
       <DeleteDialog
         open={taskForDelete !== null}
-        title="Видалення задачі"
-        text={`Видалити задачу "${taskForDelete?.title || ''}"?.`}
+        title={t('page.board.deletingTask')}
+        text={t('page.board.messages.confirmDelete', { title: taskForDelete?.title || '' })}
         onClose={handleCloseConfirm}
         onConfirm={handleDeleteConfirm}
       />

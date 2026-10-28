@@ -6,6 +6,7 @@ import GroupIcon from '@mui/icons-material/Group';
 import { isAdminSelector, useAuthStore } from "../../store/authStore";
 import type { JSX } from "react/jsx-runtime";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next"
 
 interface INavItem {
   link: string
@@ -14,22 +15,23 @@ interface INavItem {
 }
 
 export default function Sidebar(){
+  const { t } = useTranslation()
   const isAdmin = useAuthStore(isAdminSelector)
   const drawerWidth = 120
   const navigationList: INavItem[] = [
     {
       link: '/board',
-      title: 'Дошка',
+      title: t('nav.board'),
       icon: <DashboardIcon />
     },
     {
       link: '/tags',
-      title: 'Теги',
+      title: t('nav.tags'),
       icon: <LocalOfferIcon />
     },
     {
       link: '/archive',
-      title: 'Архів',
+      title: t('nav.archive'),
       icon: <InventoryIcon />
     }
   ]
@@ -37,7 +39,7 @@ export default function Sidebar(){
   if (isAdmin) {
     navigationList.push({
       link: '/users',
-      title: 'Користувачі',
+      title: t('nav.users'),
       icon: <GroupIcon />
     })
   }

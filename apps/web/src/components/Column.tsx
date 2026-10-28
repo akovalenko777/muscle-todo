@@ -3,6 +3,7 @@ import { Paper, Typography, Box, Stack } from '@mui/material';
 import type { Task, TaskStatus } from '../types/task';
 import TaskCard from './TaskCard';
 import { STATUS_COLORS } from '../theme';
+import { useTranslation } from 'react-i18next';
 
 interface ColumnProps {
   status: TaskStatus;
@@ -11,6 +12,7 @@ interface ColumnProps {
 }
 
 export default function Column({ status, label, tasks }: ColumnProps) {
+  const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
@@ -33,7 +35,7 @@ export default function Column({ status, label, tasks }: ColumnProps) {
       <Box>
         {tasks.length === 0 ? (
           <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
-            Тут поки немає задач
+            {t('page.board.emptyColumn')}
           </Typography>
         ) : (
           tasks.map((task) => <TaskCard key={task.id} task={task} />)

@@ -4,6 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PeopleIcon from '@mui/icons-material/People';
 
 import type { User } from "../../types/user";
+import { useTranslation } from "react-i18next";
 interface Props {
   user: User
   canActions: boolean
@@ -12,6 +13,7 @@ interface Props {
   onChangeRole: (id: string, role: string) => void
 }
 export default function UserTableRow({ user, canActions, onEdit, onDelete, onChangeRole }: Props) {
+  const { t } = useTranslation()
   return <TableRow>
     <TableCell>{user.email}</TableCell>
     <TableCell>{user.name}</TableCell>
@@ -24,17 +26,17 @@ export default function UserTableRow({ user, canActions, onEdit, onDelete, onCha
       />
     </TableCell>
     <TableCell align="right">
-      {canActions && <><Tooltip title="Редагувати">
+      {canActions && <><Tooltip title={t('common.edit')}>
         <IconButton color="info" onClick={() => onEdit(user)}>
           <EditIcon />
         </IconButton>
       </Tooltip>
-        <Tooltip title="Змінити роль">
+        <Tooltip title={t('page.users.changeRole')}>
           <IconButton color="success" onClick={() => onChangeRole(user.id, user.role === 'ADMIN' ? 'USER' : 'ADMIN')} sx={{ ml: 1 }}>
             <PeopleIcon />
           </IconButton>
         </Tooltip>
-        <Tooltip title="Видалити">
+        <Tooltip title={t('common.delete')}>
           <IconButton color="error" onClick={() => onDelete(user.id, user.name)} sx={{ ml: 1 }}>
             <DeleteIcon />
           </IconButton>

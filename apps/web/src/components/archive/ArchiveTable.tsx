@@ -2,6 +2,7 @@ import { Table, TableBody, TableCell, TableContainer, TableFooter, TableHead, Ta
 import type { Task } from "../../types/task"
 import ArchiveTableRow from "./ArchiveTableRow"
 import { isAdminSelector, useAuthStore } from "../../store/authStore";
+import { useTranslation } from "react-i18next"
 
 interface Props {
   page: number,
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function ArchiveTable({ page, pageSize, tasks, onDetail }: Props) {
+  const { t } = useTranslation()
   const isAdmin = useAuthStore(isAdminSelector)
 
   return (
@@ -19,21 +21,21 @@ export default function ArchiveTable({ page, pageSize, tasks, onDetail }: Props)
         <TableHead>
           <TableRow>
             <TableCell>#</TableCell>
-            <TableCell>Пріоритет</TableCell>
-            <TableCell>Створено</TableCell>
-            <TableCell>Назва</TableCell>
-            {isAdmin ? <TableCell>Виконавець</TableCell> : null }
-            <TableCell>Теги</TableCell>
+            <TableCell>{t('common.priority')}</TableCell>
+            <TableCell>{t('page.archive.created')}</TableCell>
+            <TableCell>{t('page.archive.taskTitle')}</TableCell>
+            {isAdmin ? <TableCell>{t('common.assignee')}</TableCell> : null }
+            <TableCell>{t('common.tags')}</TableCell>
           </TableRow>
         </TableHead>
         <TableFooter>
           <TableRow>
             <TableCell>#</TableCell>
-            <TableCell>Пріоритет</TableCell>
-            <TableCell>Створено</TableCell>
-            <TableCell>Назва</TableCell>
-            {isAdmin ? <TableCell>Виконавець</TableCell> : null }
-            <TableCell>Теги</TableCell>
+            <TableCell>{t('common.priority')}</TableCell>
+            <TableCell>{t('page.archive.created')}</TableCell>
+            <TableCell>{t('page.archive.taskTitle')}</TableCell>
+            {isAdmin ? <TableCell>{t('common.assignee')}</TableCell> : null }
+            <TableCell>{t('common.tags')}</TableCell>
           </TableRow>
         </TableFooter>
         <TableBody>

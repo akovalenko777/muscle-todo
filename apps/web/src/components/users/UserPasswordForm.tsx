@@ -9,6 +9,7 @@ import PasswordIcon from '@mui/icons-material/Password';
 import { generatePassword } from '../../utils/functions';
 import { passwordStrength } from 'check-password-strength'
 import PassStrengthScale from "../common/PassStrengthScale";
+import { useTranslation } from "react-i18next";
 
 interface IValues {
   currentPassword: string
@@ -17,6 +18,7 @@ interface IValues {
 }
 
 export default function UserPasswordForm() {
+  const { t } = useTranslation()
   const updateAccessToken = useAuthStore(state => state.updateAccessToken)
   const [isDisabled, setDisabled] = useState<boolean>(false)
   const [passStrength, setPassStrength] = useState<number | null>(null)
@@ -45,11 +47,11 @@ export default function UserPasswordForm() {
   const submitHandler = async (e: SyntheticEvent) => {
     e.preventDefault()
     if(passStrength !== null && passStrength < 2) {
-      toast.warning('Новий пароль не достатньо надійний')
+      toast.warning(t('page.profile.messages.weakPassword'))
       return
     }
     if(values.password !== values.repeatPassword){
-      toast.warning('Новий пароль та підтвердження не співпадають')
+      toast.warning(t('page.profile.messages.passwordMismatch'))
       return
     }
     setDisabled(true)
@@ -59,14 +61,14 @@ export default function UserPasswordForm() {
         password: values.password
       })
       if(response.status === 200){
-        toast.success('Пароль успішно змінено')
+        toast.success(t('page.profile.messages.passwordSuccess'))
         //refresh tokens
         updateAccessToken(response.data.accessToken)
         localStorage.setItem('refreshToken', response.data.refreshToken)
       }
     } catch (error: unknown) {
       if(!isAxiosError(error)){
-        toast.error('Не вдалося змінити пароль')  
+        toast.error(t('page.profile.messages.passwordError'))  
         return
       }
       const messages = isAxiosError(error)
@@ -74,11 +76,11 @@ export default function UserPasswordForm() {
           : undefined
       const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
       if (errorMessage?.includes('not strong enough')) {
-        toast.warning('Новий пароль не достатньо надійний.')
+        toast.warning(t('page.profile.messages.weakPasswordServer'))
       } else if (errorMessage?.includes('Invalid current password')) {
-        toast.error('Невірний поточний пароль.')
+        toast.error(t('page.profile.messages.invalidCurrentPassword'))
       } else {
-        toast.error('Не вдалося змінити пароль')
+        toast.error(t('page.profile.messages.passwordError'))
       }
     } finally {
       setDisabled(false)
@@ -90,12 +92,12 @@ export default function UserPasswordForm() {
     {isDisabled && <Loader />}
     <Paper>
       <Box sx={{ p: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Змінити пароль</Typography>
+        <Typography variant="h6" sx={{ mb: 2 }}>{t('page.profile.changePassword')}</Typography>
         <form onSubmit={submitHandler} id="profile-form">
           <Stack spacing={2}>
             <TextField
               id="pass-current"
-              label="Поточний пароль"
+              label={t('page.profile.currentPassword')}
               variant="standard"
               required
               type="password"
@@ -105,7 +107,7 @@ export default function UserPasswordForm() {
             />
             <TextField
               id="pass-new"
-              label="Новий пароль"
+              label={t('page.profile.newPassword')}
               variant="standard"
               required
               type="text"
@@ -115,7 +117,7 @@ export default function UserPasswordForm() {
               slotProps={{
                 input: {
                   endAdornment: <InputAdornment position="end">
-                    <Tooltip title="Сгенерувати пароль">
+                    <Tooltip title={t('page.users.genPassword')}>
                       <IconButton
                         onClick={handleGeneratePassword}
                         edge="end"
@@ -130,7 +132,7 @@ export default function UserPasswordForm() {
             <PassStrengthScale strength={passStrength} />
             <TextField
               id="pass-repeat"
-              label="Новий пароль ще раз"
+              label={t('page.profile.newPasswordRepeat')}
               variant="standard"
               required
               type="text"
@@ -140,7 +142,7 @@ export default function UserPasswordForm() {
             />
           </Stack>
           <Box sx={{ textAlign: 'right', mt: 3 }}>
-            <Button variant="contained" type="submit" disabled={isDisabled}>Відправити</Button>
+            <Button variant="contained" type="submit" disabled={isDisabled}>{t('common.send')}</Button>
           </Box>
         </form>
       </Box>

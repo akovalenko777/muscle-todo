@@ -10,8 +10,10 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function UserPopper(){
+  const { t } = useTranslation()
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
   const logout = useAuthStore(state => state.logout)
@@ -37,7 +39,7 @@ export default function UserPopper(){
         ref={anchorRef}
         aria-label="Button group with a nested menu"
       >
-        <Button onClick={() => navigate('/profile')}>Профіль</Button>
+        <Button onClick={() => navigate('/profile')}>{t('nav.profile')}</Button>
         <Button
           size="small"
           aria-controls={anchorEl ? 'split-button-menu' : undefined}
@@ -68,7 +70,7 @@ export default function UserPopper(){
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id="split-button-menu" autoFocusItem>
-                  <MenuItem onClick={logout}>Вийти</MenuItem>
+                  <MenuItem onClick={logout}>{t('nav.logout')}</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>
