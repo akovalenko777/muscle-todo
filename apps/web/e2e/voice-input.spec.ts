@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+test.use({ locale: 'uk' })
 
 test.use({ speechRecognitionText: 'Продиктована назва задачі' });
 

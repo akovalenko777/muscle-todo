@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+test.use({ locale: 'uk' })
 
 test.describe('Auth flow', () => {
   test('registers, logs in, and reaches the board', async ({ page, testUser }) => {

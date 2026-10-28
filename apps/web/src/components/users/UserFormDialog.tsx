@@ -7,6 +7,7 @@ import { isAxiosError, type AxiosResponse } from 'axios';
 import type { RegisterValues } from '../../types/user';
 import PasswordIcon from '@mui/icons-material/Password';
 import { generatePassword } from '../../utils/functions';
+import { useTranslation } from 'react-i18next';
 
 interface UserFormDialogProps {
   open: boolean;
@@ -22,6 +23,7 @@ const defaultValues: Partial<RegisterValues> = {
 }
 
 export default function UserFormDialog({ open, user, onClose, onSuccess }: UserFormDialogProps) {
+  const { t } = useTranslation()
   const [values, setValues] = useState<Partial<RegisterValues>>(user ? { email: user.email, name: user.name } : defaultValues)
 
   const setValue = (name: keyof RegisterValues, value: string) => {
@@ -42,17 +44,17 @@ export default function UserFormDialog({ open, user, onClose, onSuccess }: UserF
           email: values.email
         })
         onSuccess(updateResponse.data)
-        toast.success('Профіль користувача змінено')
+        toast.success(t('page.users.messages.updateSuccess'))
       } else {
         const createResponse: AxiosResponse = await api.post('/users', values)
         onSuccess(createResponse.data)
-        toast.success('Користувача додано')
+        toast.success(t('page.users.messages.createSuccess'))
       }
       setValues(defaultValues)
       onClose()
     } catch (error: unknown) {
       if (!isAxiosError(error)) {
-        toast.error('Не вдалося зберегти користувача');
+        toast.error(t('page.users.messages.saveError'));
         return
       }
       const messages = isAxiosError(error)
@@ -60,24 +62,24 @@ export default function UserFormDialog({ open, user, onClose, onSuccess }: UserF
         : undefined
       const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
       if (errorMessage?.includes('email already exists')) {
-        toast.error('Користувач з таким email вже існує.')
+        toast.error(t('page.users.messages.emailExists'))
       } else if (errorMessage?.includes('password is not strong enough')) {
-        toast.error('Пароль недостатньо надійний.')
+        toast.error(t('page.users.messages.weakPassword'))
       } else {
-        toast.error('Не вдалося додати. Спробуйте ще раз.')
+        toast.error(t('page.users.messages.addError'))
       }
     }
   };
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>{user ? 'Редагувати користувача' : 'Додати користувача'}</DialogTitle>
+      <DialogTitle>{user ? t('page.users.editUser') : t('page.users.addUser')}</DialogTitle>
       <DialogContent>
         <form id="user-form" onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
               id="user-name"
-              label="Ім'я"
+              label={t('common.name')}
               variant="standard"
               name="name"
               required
@@ -86,7 +88,7 @@ export default function UserFormDialog({ open, user, onClose, onSuccess }: UserF
             />
             <TextField
               id="user-email"
-              label="Email"
+              label={t('common.email')}
               variant="standard"
               name="email"
               required
@@ -96,7 +98,7 @@ export default function UserFormDialog({ open, user, onClose, onSuccess }: UserF
             {!user && <>
               <TextField
                 id="user-pass"
-                label="Пароль"
+                label={t('common.password')}
                 variant="standard"
                 type="text"
                 name="password"
@@ -106,7 +108,7 @@ export default function UserFormDialog({ open, user, onClose, onSuccess }: UserF
                 slotProps={{
                   input: {
                     endAdornment: <InputAdornment position="end">
-                      <Tooltip title="Сгенерувати пароль">
+                      <Tooltip title={t('page.users.genPassword')}>
                         <IconButton
                           onClick={handleGenPassword}
                           edge="end"
@@ -123,8 +125,8 @@ export default function UserFormDialog({ open, user, onClose, onSuccess }: UserF
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Скасувати</Button>
-        <Button variant="contained" type="submit" form="user-form">Зберегти</Button>
+        <Button onClick={onClose}>{t('common.cancel')}</Button>
+        <Button variant="contained" type="submit" form="user-form">{t('common.save')}</Button>
       </DialogActions>
     </Dialog>
   );

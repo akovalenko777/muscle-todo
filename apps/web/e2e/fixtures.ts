@@ -146,7 +146,7 @@ export const test = base.extend<{
     await apiContext.dispose();
 
     await use(users);
-  }, { scope: 'worker' }]
+  }, { scope: 'worker' }],
 });
 
 export { expect } from '@playwright/test';

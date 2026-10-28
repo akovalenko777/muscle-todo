@@ -1,0 +1,35 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password"
+  },
+  "page": {
+    "users": {
+      "title": "Users",
+      "addUser": "Add User",
+      "editUser": "Edit User",
+      "searchPlaceholder": "Search by name or email",
+      "genPassword": "Generate password",
+      "deletingUser": "Deleting User",
+      "messages": {
+        "getListError": "An error occurred while retrieving the users list",
+        "confirmDelete": "Are you sure you want to delete user \"{{userName}}\"?",
+        "deleteSuccess": "User successfully deleted",
+        "deleteError": "Unable to delete user.",
+        "forbiddenDelete": "You don't have permission to delete this user.",
+        "notFoundDelete": "There is no user to delete.",
+        "changeRoleError": "Unable to change user's role.",
+        "updateSuccess": "User profile updated",
+        "createSuccess": "User added",
+        "saveError": "Unable to save user",
+        "emailExists": "A user with this email already exists.",
+        "weakPassword": "Password is not strong enough.",
+        "addError": "Unable to add user. Please try again."
+      }
+    }
+  }
+}

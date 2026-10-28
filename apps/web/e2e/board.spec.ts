@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+test.use({ locale: 'uk' })
 
 test('create a new task', async ({ authenticatedPage: page }) => {
   await page.getByText('Додати задачу').click()

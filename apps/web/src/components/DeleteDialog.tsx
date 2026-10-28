@@ -1,4 +1,5 @@
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface DeleteDialogProps {
   open: boolean;
@@ -9,6 +10,7 @@ interface DeleteDialogProps {
 }
 
 export default function DeleteDialog({open, title, text, onClose, onConfirm}: DeleteDialogProps) {
+  const { t } = useTranslation()
   return (
     <Dialog
       open={open}
@@ -24,9 +26,9 @@ export default function DeleteDialog({open, title, text, onClose, onConfirm}: De
       </DialogContent>
       <DialogActions>
         <Button autoFocus onClick={onClose}>
-          Скасувати
+          {t('common.cancel')}
         </Button>
-        <Button color="error" variant="contained" onClick={onConfirm}>Видалити</Button>
+        <Button color="error" variant="contained" onClick={onConfirm}>{t('common.delete')}</Button>
       </DialogActions>
     </Dialog>
   )

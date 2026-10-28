@@ -11,8 +11,10 @@ import UsersTable from "../components/users/UsersTable";
 import UserFormDialog from "../components/users/UserFormDialog";
 import DeleteDialog from "../components/DeleteDialog";
 import { isAxiosError } from "axios";
+import { useTranslation } from "react-i18next";
 
 export default function UserPage() {
+  const { t } = useTranslation()
   const { user: currentUser } = useAuthStore()
   const isAdmin = useAuthStore(isAdminSelector)
   const [users, setUsers] = useState<User[]>([])
@@ -32,7 +34,7 @@ export default function UserPage() {
         const response: AxiosResponse = await api.get('/users')
         setUsers(response.data)
       } catch {
-        toast.error('Помилка при отриманні списку користувачів')
+        toast.error(t('page.users.messages.getListError'))
       }
     }
     fetchUsers()
@@ -44,7 +46,7 @@ export default function UserPage() {
   }
 
   const handleDelete = async (userId: string, userName: string) => {
-    setDeleteText(`Дійсно видалити користувача "${userName}"?`)
+    setDeleteText(t('page.users.messages.confirmDelete', { userName }))
     setOpenConfirm(true)
     userIdForDelete.current = userId
   }
@@ -58,11 +60,11 @@ export default function UserPage() {
         setUsers(updatedUsers)
         userIdForDelete.current = ''
         setOpenConfirm(false)
-        toast.success('Користувач успішно видалений')
+        toast.success(t('page.users.messages.deleteSuccess'))
       }
     }catch(error: unknown){
       if (!isAxiosError(error)) {
-        toast.error('Не вдалося видалити користувача');
+        toast.error(t('page.users.messages.deleteError'));
         return
       }
       const messages = isAxiosError(error)
@@ -70,11 +72,11 @@ export default function UserPage() {
         : undefined
       const errorMessage = Array.isArray(messages) ? messages.join(' ') : messages
       if (errorMessage?.includes('Forbidden resource')) {
-        toast.error('У вас немає прав для видалення користувача.')
+        toast.error(t('page.users.messages.forbiddenDelete'))
       } else if (errorMessage?.includes('not found')) {
-        toast.error('Немає запису для видалення.')
+        toast.error(t('page.users.messages.notFoundDelete'))
       } else {
-        toast.error('Не вдалося видалити користувача');
+        toast.error(t('page.users.messages.deleteError'));
       }
     }
     
@@ -87,7 +89,7 @@ export default function UserPage() {
       })
       updateUsersList(response.data)
     } catch {
-      toast.error('Не вдалося змінити роль користувача')
+      toast.error(t('page.users.messages.changeRoleError'))
     }
   }
 
@@ -112,8 +114,8 @@ export default function UserPage() {
   return (
     <>
       <Stack sx={{ justifyContent: 'space-between', alignItems: 'center' }} direction="row">
-        <h1>Користувачі</h1>
-        <Button variant="contained" color="success" onClick={handleOpenAdd} startIcon={<AddCircleIcon />}>Додати користувача</Button>
+        <h1>{t('page.users.title')}</h1>
+        <Button variant="contained" color="success" onClick={handleOpenAdd} startIcon={<AddCircleIcon />}>{t('page.users.addUser')}</Button>
       </Stack>
       <Paper sx={{ p: 2 }}>
         <UsersTable
@@ -133,7 +135,7 @@ export default function UserPage() {
       />
       <DeleteDialog
         open={openConfirm}
-        title="Видалення користувача"
+        title={t('page.users.deletingUser')}
         text={deleteText}
         onClose={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}

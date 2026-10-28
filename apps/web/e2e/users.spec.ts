@@ -1,4 +1,5 @@
 import { test, expect } from './fixtures';
+test.use({ locale: 'uk' })
 // access tests
 test('restricted /users page for regular user', async({ authenticatedPage: page }) => {
   await page.goto('/users')
@@ -9,8 +10,9 @@ test('restricted /users page for regular user', async({ authenticatedPage: page 
 })
 
 test('allow /users page for admin', async({ authenticatedAdminPage: page }) => {
+  await page.localStorage.setItem('lang', 'uk')
   await page.goto('/users')
-  await expect(page.locator('h1')).toContainText('Список користувачів')
+  await expect(page.locator('h1')).toContainText('Користувачі')
   expect(page.locator('.MuiTable-root')).toBeDefined()
 })
 

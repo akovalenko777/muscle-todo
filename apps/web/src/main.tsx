@@ -1,5 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import './i18n.ts'
 import App from './App.tsx'
 import { ToastContainer } from "react-toastify"
 import { BrowserRouter } from 'react-router-dom'
