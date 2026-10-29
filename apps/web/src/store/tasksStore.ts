@@ -1,6 +1,14 @@
 import { create } from 'zustand';
 import type { Task, TaskStatus } from '../types/task';
 import api from '../api/axios';
+import { PRIORITIES } from '../constants/taskLabels';
+
+function sortTasks(arTasks: Task[]): Task[] {
+  // sort by priority and creatoin date
+  return arTasks.toSorted((a, b) => {
+    return PRIORITIES.findIndex(el => el === a.priority) - PRIORITIES.findIndex(el => el === b.priority) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  })
+}
 
 interface TasksState {
   tasks: Task[];
@@ -27,7 +35,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   taskForEdit: null,
   taskForView: null,
   taskForDelete: null,
-  setTasks: (tasks) => set({ tasks }),
+  setTasks: (tasks) => set({ tasks: sortTasks(tasks) }),
 
   updateTaskStatus: async (taskId, newStatus) => {
     const previousTasks = get().tasks
@@ -37,7 +45,7 @@ export const useTasksStore = create<TasksState>((set, get) => ({
     const optimisticTasks = previousTasks.map((task) =>
       task.id === taskId ? { ...task, status: newStatus } : task
     )
-    set({ tasks: optimisticTasks })
+    set({ tasks: sortTasks(optimisticTasks) })
 
     try {
       await api.patch(`/tasks/${taskId}`, { status: newStatus })
@@ -45,18 +53,18 @@ export const useTasksStore = create<TasksState>((set, get) => ({
       set({ tasks: previousTasks })
     }
   },
-  addTask: (task) => set({ tasks: [...get().tasks, task] }),
+  addTask: (task) => { set({ tasks: sortTasks([...get().tasks, task]) })},
   updateTask: (task) => {
     const tasks = get().tasks
     const updatedTasks = tasks.map((taskItem) =>
       taskItem.id === task.id ? { ...task } : taskItem
     )
-    set({ tasks: updatedTasks })
+    set({ tasks: sortTasks(updatedTasks) })
   },
   deleteTask: (taskId) => {
     const tasks = get().tasks
     const updatedTasks = tasks.filter((task) => task.id !== taskId)
-    set({ tasks: updatedTasks })
+    set({ tasks: sortTasks(updatedTasks) })
   },
   setTaskForEdit: (taskForEdit) => set({ taskForEdit }),
   setTaskForView: (taskForView) => set({ taskForView }),
