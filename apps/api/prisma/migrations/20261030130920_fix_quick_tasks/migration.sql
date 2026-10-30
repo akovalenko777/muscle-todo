@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "quick_task" ALTER COLUMN "createdAt" SET DEFAULT CURRENT_TIMESTAMP;

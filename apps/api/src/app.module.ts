@@ -11,8 +11,18 @@ import { RoleGuard } from './auth/roles.guard.js';
 import { AppService } from './app.service.js';
 import { TagsModule } from './tags/tags.module.js';
 import { ArchiveModule } from './archive/archive.module.js';
+import { QuickTasksModule } from './quick_tasks/quick_tasks.module.js';
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, TasksModule, UsersModule, AuthModule, TagsModule, ArchiveModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    TasksModule,
+    UsersModule,
+    AuthModule,
+    TagsModule,
+    ArchiveModule,
+    QuickTasksModule
+  ],
   controllers: [AppController],
   providers: [AppService,
     {
