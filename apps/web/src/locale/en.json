@@ -1,6 +1,7 @@
 {
   "common": {
     "save": "Save",
+    "add": "Add",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
@@ -30,6 +31,7 @@
   },
   "nav": {
     "board": "Board",
+    "quickTasks": "Quick tasks",
     "tags": "Tags",
     "archive": "Archive",
     "users": "Users",
@@ -54,6 +56,18 @@
       "noCredential": "Something went wrong...",
       "error": "Unable to log in with Google account",
       "useLocalLogin": "Please log in with your email and password."
+    }
+  },
+  "quickTasks": {
+    "title": "Quick Tasks",
+    "listTitle": "Tasks for Today",
+    "text": "Add new task for today",
+    "deleteTooltip": "Delete task",
+    "messages": {
+      "helpText": "Undone tasks will be automatically moved for tomorrow.",
+      "getListError": "An error occurred while retrieving quick tasks",
+      "createSuccess": "Quick tasks successfully added",
+      "addError": "Unable to add quick task. Please try again."
     }
   },
   "page": {

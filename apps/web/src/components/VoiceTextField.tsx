@@ -1,7 +1,7 @@
 import { TextField, IconButton, InputAdornment, type TextFieldProps } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSpeechToText } from '../hooks/useSpeechToText';
 
 interface VoiceTextFieldProps extends Omit<TextFieldProps, 'value' | 'onChange'> {
@@ -11,9 +11,13 @@ interface VoiceTextFieldProps extends Omit<TextFieldProps, 'value' | 'onChange'>
 
 export default function VoiceTextField({ value, onChange, ...textFieldProps }: VoiceTextFieldProps) {
   const { isListening, transcript, startListening, stopListening, isSupported } = useSpeechToText()
+  const lastTranscriptRef = useRef('');
 
   useEffect(() => {
-    if(transcript !== '') onChange(transcript)
+    if (transcript !== '' && transcript !== lastTranscriptRef.current) {
+      lastTranscriptRef.current = transcript;
+      onChange(transcript);
+    }
   }, [transcript, onChange])
 
   return (

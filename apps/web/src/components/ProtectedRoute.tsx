@@ -1,13 +1,14 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { AppBar, Box, Container, CssBaseline, Toolbar } from "@mui/material";
-import { useEffect, useState, useEffectEvent } from "react";
+import { AppBar, Box, CssBaseline, Toolbar } from "@mui/material";
+import { useEffect, useState, useEffectEvent, type SyntheticEvent } from "react";
 import api from "../api/axios";
 import type { AxiosResponse } from "axios";
 import Loader from "./Loader";
 import { Navigate } from "react-router-dom";
 import SiteHeader from "./common/SiteHeader";
 import Sidebar from "./common/Sidebar";
+import QuickTasksPanel from "./quickTasks/QuickTasksPanel";
 
 export default function ProtectedRoute() {
   const { accessToken, updateUser } = useAuthStore()
@@ -37,13 +38,12 @@ export default function ProtectedRoute() {
     onMountCheck()
   }, [navigate])
 
-
-
   if (loading) return <Loader />
   if (!accessToken) return <Navigate to="/login" replace />
 
   return (
     <div className="application">
+      <QuickTasksPanel />
       <Box sx={{ display: 'flex' }}>
         <CssBaseline />
         <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>

@@ -1,6 +1,6 @@
 import { useTasksStore } from "../store/tasksStore"
 import { useTaskPermissions } from "../hooks/useTaskPermissions"
-import { Box, Button, DialogActions, DialogContent, DialogTitle, Drawer, Stack, Typography, Chip } from "@mui/material"
+import { Box, Button, DialogActions, DialogContent, Drawer, Stack, Chip } from "@mui/material"
 import { formatDate } from "../utils/functions"
 import FaceIcon from '@mui/icons-material/Face';
 import { type TaskTag } from "../types/task"
@@ -12,6 +12,7 @@ import { getPriorityLabel, getStatusLabel } from "../constants/taskLabels";
 import { RichTextReadOnly } from "mui-tiptap";
 import { editorExtensions } from "../utils/editorExtensions";
 import { useTranslation } from "react-i18next"
+import CustomDialogTitle from "./parts/CustomDialogTitle";
 
 export default function TaskViewDialog() {
   const { t } = useTranslation()
@@ -50,16 +51,11 @@ export default function TaskViewDialog() {
         }
       }}
     >
-      <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider', p: 1, pl: 3, pb: 1.5, backgroundColor: 'background.default' }}>
-        {task.title}
-      </DialogTitle>
+      <CustomDialogTitle title={task.title} />
       <DialogContent>
         <Box sx={{ pt: 2 }}>
           <Box sx={{ borderBottom: '1px solid', borderColor: 'divider', fontSize: '.8rem', pb: 2, mb: 2 }}>
             <Stack sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 20px' }}>
-              {/* <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <b>ID</b> <Typography sx={{ color: 'text.secondary', fontSize: '.7rem' }}>{task.id}</Typography>
-              </Box> */}
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <b>{t('common.status')}</b>  <Chip size='small' label={getStatusLabel(task.status)} sx={{ backgroundColor: STATUS_COLORS[task.status] }} />
               </Box>

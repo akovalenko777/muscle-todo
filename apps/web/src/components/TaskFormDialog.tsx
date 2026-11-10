@@ -1,5 +1,5 @@
 import { use, useState, type SyntheticEvent } from 'react';
-import { Drawer, DialogTitle, DialogContent, DialogActions, Button, Stack, Select, FormControl, InputLabel, MenuItem, Autocomplete, TextField, Chip, Box } from '@mui/material';
+import { Drawer, DialogContent, DialogActions, Button, Stack, Select, FormControl, InputLabel, MenuItem, Autocomplete, TextField, Chip, Box } from '@mui/material';
 import api from '../api/axios';
 import { useTasksStore } from '../store/tasksStore';
 import type { Task, TaskPriority } from '../types/task';
@@ -15,6 +15,7 @@ import RichTextEditor from './RichTextEditor';
 import { useEditor } from '@tiptap/react'
 import { editorExtensions } from '../utils/editorExtensions';
 import { useTranslation } from 'react-i18next';
+import CustomDialogTitle from './parts/CustomDialogTitle';
 
 interface TaskFormDialogProps {
   open: boolean;
@@ -111,9 +112,7 @@ export default function TaskFormDialog({ open, onClose, task }: TaskFormDialogPr
         }
       }}
     >
-      <DialogTitle sx={{ borderBottom: '1px solid', borderColor: 'divider', p: 1, pl: 3, pb: 1.5, backgroundColor: 'background.default' }}>
-        {current ? t('task.editTask') : t('task.newTask')}
-      </DialogTitle>
+      <CustomDialogTitle title={current ? t('task.editTask') : t('task.newTask')} />
       <DialogContent>
         <form id="task-form" onSubmit={handleSubmit}>
           <Stack spacing={2} sx={{ pt: 2 }}>
