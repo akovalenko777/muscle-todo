@@ -25,7 +25,7 @@ export default function QuickTaskRow({task, onDone, onDelete}: Props){
           onChange={() => onDone(task.id, !task.done)}
         />
       </Box>
-      <Box sx={ task.done ? { textDecoration: 'throug' } : {} }>
+      <Box sx={ task.done ? { textDecorationLine: 'line-through', opacity: '0.7' } : {} }>
         {task.title}
       </Box>
       <Box>

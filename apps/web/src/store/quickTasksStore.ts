@@ -37,10 +37,15 @@ export const useQuickTasksStore = create<QuickTasksState>((set, get) => ({
       set({ quickTasks: tasks })
     }
   },
-  deleteQuickTask: (taskId) => {
+  deleteQuickTask: async (taskId) => {
     const tasks = get().quickTasks
     const updatedTasks = tasks.filter((task) => task.id !== taskId)
     set({ quickTasks: sortQuickTasks(updatedTasks) })
+    try {
+      await api.delete(`/quick_tasks/${taskId}`)
+    } catch {
+      set({ quickTasks: tasks })
+    }
   },
 }));
 
