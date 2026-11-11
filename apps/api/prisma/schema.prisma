@@ -43,6 +43,7 @@ model User {
 
   assignedTasks Task[]
   quickTasks    QuickTask[]
+  quickTasksLog QuickTaskDailyLog[]
   token         RefreshToken?
 
   @@map("user")
@@ -107,10 +108,25 @@ model RefreshToken {
 model QuickTask {
   id          String    @id @default(cuid())
   userId      String
+  date        DateTime  @db.Date @default(now())
   createdAt   DateTime  @default(now())
   title       String
   done        Boolean   @default(false)
 
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("quick_task")
+}
+
+model QuickTaskDailyLog {
+  id         String   @id @default(cuid())
+  userId     String
+  date       DateTime @db.Date
+  totalTasks Int
+  doneTasks  Int
+  list       Json
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("quick_task_daily_log")
 }

@@ -12,6 +12,7 @@ import { AppService } from './app.service.js';
 import { TagsModule } from './tags/tags.module.js';
 import { ArchiveModule } from './archive/archive.module.js';
 import { QuickTasksModule } from './quick_tasks/quick_tasks.module.js';
+import { QuickTasksLogModule } from './quick_tasks_log/quick_tasks_log.module.js';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -21,7 +22,8 @@ import { QuickTasksModule } from './quick_tasks/quick_tasks.module.js';
     AuthModule,
     TagsModule,
     ArchiveModule,
-    QuickTasksModule
+    QuickTasksModule,
+    QuickTasksLogModule
   ],
   controllers: [AppController],
   providers: [AppService,
